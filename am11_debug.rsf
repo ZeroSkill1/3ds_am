@@ -1,0 +1,80 @@
+BasicInfo:
+  Title                   : am_f
+  CompanyCode             : "00"
+  ProductCode             : 
+  ContentType             : Application
+  Logo                    : None
+
+TitleInfo:
+  UniqueId                : 0x54
+  Category                : Base
+  Version                 : 2
+
+Option:
+  UseOnSD                 : false
+  FreeProductCode         : true # Removes limitations on ProductCode
+  MediaFootPadding        : false # If true CCI files are created with padding
+  EnableCrypt             : false # Enables encryption for NCCH and CIA
+  EnableCompress          : false # Compresses exefs code
+
+AccessControlInfo:
+  IdealProcessor                : 1
+  AffinityMask                  : 2
+
+  Priority                      : 28
+
+  DisableDebug                  : false
+  EnableForceDebug              : false
+  CanWriteSharedPage            : false
+  CanUsePrivilegedPriority      : false
+  CanUseNonAlphabetAndNumber    : false
+  PermitMainFunctionArgument    : false
+  CanShareDeviceMemory          : false
+  RunnableOnSleep               : true
+  SpecialMemoryArrange          : false
+  ResourceLimitCategory         : Other
+
+  CoreVersion                   : 2
+  DescVersion                   : 2
+
+  MemoryType                    : Base      # Application / System / Base
+  HandleTableSize: 0
+
+  SystemSaveDataId1: 0x00010054
+
+  SystemCallAccess:
+    ControlMemory: 0x01
+    ExitProcess: 0x03
+    CreateThread: 0x08
+    ExitThread: 0x09
+    SleepThread: 0x0A
+    CreateMutex: 0x13
+    CreateEvent: 0x17
+    SignalEvent: 0x18
+    CreateAddressArbiter: 0x21
+    ArbitrateAddressNoTimeout: 0x22
+    CloseHandle: 0x23
+    WaitSynchronization: 0x24
+    WaitSynchronizationN: 0x25
+    ConnectToPort: 0x2D
+    SendSyncRequest: 0x32
+    GetProcessId: 0x35
+    GetResourceLimit: 0x38
+    GetResourceLimitLimitValues: 0x39
+    GetResourceLimitCurrentValues: 0x3A
+    Break: 0x3C
+    OutputDebugString: 0x3D
+    CreatePort: 0x47
+    CreateSessionToPort: 0x48
+    AcceptSession: 0x4A
+    ReplyAndReceive: 0x4F
+
+  InterruptNumbers:
+  ServiceAccessControl:
+    - pxi:am9
+    - fs:USER
+
+SystemControlInfo:
+  RemasterVersion: 0
+  StackSize: 0x1000
+  Dependency:

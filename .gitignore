@@ -1,0 +1,11 @@
+0004*
+build/
+dsiware-exports/
+.cache/
+.vscode/
+*.cxi
+*.elf
+*.zip
+privatesav-dsiware-exports/
+code.bin
+exheader.bin
