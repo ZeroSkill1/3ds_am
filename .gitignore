@@ -9,3 +9,4 @@ dsiware-exports/
 privatesav-dsiware-exports/
 code.bin
 exheader.bin
+*.d
