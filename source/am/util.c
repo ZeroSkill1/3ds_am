@@ -1,6 +1,6 @@
 #include <am/util.h>
 
-void int_convert_to_hex(char* out, uint32_t n)
+void int_convert_to_hex(char* out, uint32_t n, bool newline)
 {
 	*out++ = '0';
 	*out++ = 'x';
@@ -13,6 +13,9 @@ void int_convert_to_hex(char* out, uint32_t n)
 		out[1] = hextable[_i & 0xF];
 		out += 2;
 	}
-	*out++ = '\n';
+
+	if (newline)
+		*out++ = '\n';
+	
 	*out = 0;
 }

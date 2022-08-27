@@ -24,7 +24,7 @@ Result am9Init()
 		static const char am9_srvname[8] = "pxi:am9";
 		res = SRV_GetServiceHandle(&am9_session, am9_srvname, 7, 0);
 #else
-		svcSleepThread(5000000000LL); // gotta wait for real am to start up
+		svcSleepThread(5000000000LL); // gotta wait for stock am to start up
 		res = svcControlServiceSteal(&am9_session, "pxi:am9");
 #endif
 

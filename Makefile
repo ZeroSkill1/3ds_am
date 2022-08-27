@@ -39,11 +39,19 @@ LDFLAGS	=	-specs=3dsx.specs -nostartfiles -nostdlib	 \
 
 RSF     = $(OUTPUT)_debug.rsf
 
-ifeq ($(RELEASE),)
+ifneq ($(DEBUG),)
 	CFLAGS += -g -O0
 else
-	CFLAGS += -Os -DREPLACE_AM
+	CFLAGS += -Os
+endif
+
+ifneq ($(REPLACE_AM),)
+	CFLAGS += -DREPLACE_AM
 	RSF     = $(OUTPUT).rsf
+endif
+
+ifneq ($(DEBUG_PRINTS),)
+	CFLAGS += -DDEBUG_PRINTS
 endif
 
 LIBS	:=
@@ -94,7 +102,6 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 all: $(BUILD)
 
 $(BUILD):
-	@echo $(CFLAGS)
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
@@ -113,14 +120,18 @@ DEPENDS	:=	$(OFILES:.o=.d)
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-all	:	$(OUTPUT).cxi
+
+all	:	$(OUTPUT).cia
+
+$(OUTPUT).cia   :   $(OUTPUT).cxi
+	@makerom -f cia -o $(OUTPUT).cia -ver 10245 -i $(OUTPUT).cxi:0:0 -ignoresign -v
+	@echo built ... $(notdir $@)	
 
 $(OUTPUT).cxi	:	$(OUTPUT).elf $(RSF)
-	@makerom -f ncch -rsf $(word 2,$^) -o $@ -elf $(OUTPUT).elf
-	@3dstool -xtf cxi $(OUTPUT).cxi --extendedheader $(TOPDIR)/exheader.bin --exefs $(TOPDIR)/exefs.bin
-	@3dstool -xtf exefs $(TOPDIR)/exefs.bin --exefs-dir $(TOPDIR)/exefs
-	@cp $(TOPDIR)/exefs/code.bin $(TOPDIR)/code.bin
-	@rm $(TOPDIR)/exefs $(TOPDIR)/exefs.bin -rf
+ifeq ($(DEBUG),)
+	arm-none-eabi-strip $(OUTPUT).elf
+endif
+	@makerom -f ncch -rsf $(word 2,$^) -o $@ -elf $(OUTPUT).elf -target t -ignoresign
 	@echo built ... $(notdir $@)
 
 $(OUTPUT).elf	:	$(OFILES)

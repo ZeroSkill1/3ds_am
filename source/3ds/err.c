@@ -39,7 +39,7 @@ void ERRF_ThrowResultNoRet(Result failure)
 
 	error->type = ERRF_ERRTYPE_GENERIC;
 	error->pcAddr = (u32)__builtin_extract_return_addr(__builtin_return_address(0));
-    error->resCode = failure;
+	error->resCode = failure;
 
 	svcGetProcessId(&error->procId, CUR_PROCESS_HANDLE);
 

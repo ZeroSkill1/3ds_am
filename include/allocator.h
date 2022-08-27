@@ -13,5 +13,4 @@ void meminit(void *ptr, unsigned size);
 void *malloc(unsigned size);
 void free(void *ptr);
 
-
 #endif

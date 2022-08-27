@@ -104,20 +104,29 @@ static void convertV1FooterToV2_12Footer(void *out, void *in)
 static Result decryptSectionVerify(void *in, void *out, void *out_hash, u32 size, AM_TWLExportSectionIndex index)
 {
 	u8 newiv[0x10];
+
 	AM_TWLExportBlockMetadata *meta = GET_BLOCKMETA(in, size);
+
 	Result res = AM9_DSiWareExportDecryptData(size, size, 0x10, index, in, meta->iv, out, newiv);
+
 	if (R_FAILED(res))
 		return res;
+
 	u8 hash[SIZE_OF_SHA_256_HASH];
 	struct SHA256 sha;
+
 	sha_256_init(&sha, hash);
 	sha_256_write(&sha, out, size);
 	sha_256_close(&sha);
+
 	res = AM9_DSiWareExportValidateSectionMAC(0x10, SIZE_OF_SHA_256_HASH, index, meta->cmac, hash);
+
 	if (R_FAILED(res))
 		return res;
+
 	if (out_hash)
 		_memcpy32_aligned(out_hash, hash, SIZE_OF_SHA_256_HASH);
+
 	return res;
 }
 
@@ -222,9 +231,7 @@ static Result processCancel(AM_TWLExportSectionIndex index)
 
 // it's ninty, it must be a mess
 
-static Result processSection(u32 size, u8 *inhash, void *buf, u32 bufsize, Handle file, u64 *off,
-							bool onlyverify, AM_TWLExportSectionIndex index, AM_TWLExportType type,
-							u64 twl_title_id, u16 content_index)
+static Result processSection(u32 size, u8 *inhash, void *buf, u32 bufsize, Handle file, u64 *off, bool onlyverify, AM_TWLExportSectionIndex index, AM_TWLExportType type, u64 twl_title_id, u16 content_index)
 {
 	AM_TWLExportBlockMetadata blockmeta;
 	u8 hash[SIZE_OF_SHA_256_HASH];
@@ -383,8 +390,7 @@ Result AM_ImportTWLBackup(u32 buffer_size, AM_TWLExportType type, Handle file, v
 
 	void *headerptr = HEADER_OFFSET(buffer);
 
-	if (R_FAILED(res = decryptSectionVerify(headerptr, header, &header_hash, info->header_size,
-											TWLExport_Header)))
+	if (R_FAILED(res = decryptSectionVerify(headerptr, header, &header_hash, info->header_size, TWLExport_Header)))
 	{
 		// we don't need to reread the file at this point, other export types read more than required anyway
 
@@ -395,8 +401,7 @@ Result AM_ImportTWLBackup(u32 buffer_size, AM_TWLExportType type, Handle file, v
 		info = &EXPORTINFO_V1_4;
 		type = V1_4ContentSectionsC;
 
-		if (R_FAILED(res = decryptSectionVerify(headerptr, headerptr, &header_hash, info->header_size, 
-												TWLExport_Header)))
+		if (R_FAILED(res = decryptSectionVerify(headerptr, headerptr, &header_hash, info->header_size, TWLExport_Header)))
 			CLOSEFILE_RET(res)
 
 		// detected an older header, gotta convert to a v2_12 header
@@ -469,10 +474,10 @@ Result AM_ImportTWLBackup(u32 buffer_size, AM_TWLExportType type, Handle file, v
 
 	// 4 - tmd
 
-	if (R_FAILED(res = processSection(hdr->payload_sizes[0], ftr->content_section_hashes[0], buffer,
-									  buffer_size, file, &offset, only_verify, TWLExport_TMD, type, 0, 0)))
+	if (R_FAILED(res = processSection(hdr->payload_sizes[0], ftr->content_section_hashes[0], buffer, buffer_size, file, &offset, only_verify, TWLExport_TMD, type, 0, 0)))
 	{
-		if (!only_verify) AM9_InstallTitleCancel();
+		if (!only_verify)
+			AM9_InstallTitleCancel();
 		CLOSEFILE_RET(res)
 	}
 
@@ -483,11 +488,11 @@ Result AM_ImportTWLBackup(u32 buffer_size, AM_TWLExportType type, Handle file, v
 		if (!hdr->payload_sizes[i + 1])
 			continue;
 
-		if (R_FAILED(res = processSection(hdr->payload_sizes[i + 1], ftr->content_section_hashes[i + 1],
-										  buffer, buffer_size, file, &offset, only_verify, TWLExport_Content,
-										  type, 0, hdr->content_indices[i])))
+		if (R_FAILED(res = processSection(hdr->payload_sizes[i + 1], ftr->content_section_hashes[i + 1], buffer, buffer_size, file, &offset, only_verify, TWLExport_Content, type, 0, hdr->content_indices[i])))
 		{
-			if (!only_verify) AM9_InstallTitleCancel();
+			if (!only_verify)
+				AM9_InstallTitleCancel();
+
 			CLOSEFILE_RET(res)
 		}
 	}
@@ -495,33 +500,23 @@ Result AM_ImportTWLBackup(u32 buffer_size, AM_TWLExportType type, Handle file, v
 	// 6 - save data (public.sav, banner.sav, private.sav)
 	// such a mess, can't find a better way
 
-	if ((hdr->payload_sizes[9] && R_FAILED(res = processSection(hdr->payload_sizes[9], 
-																ftr->content_section_hashes[9], buffer,
-																buffer_size, file, &offset, only_verify,
-																TWLExport_PublicSaveData, type,
-																hdr->base.twl_title_id, 0))) ||
-
-		(hdr->payload_sizes[10] && R_FAILED(res = processSection(hdr->payload_sizes[10], 
-																ftr->content_section_hashes[10], buffer,
-																buffer_size, file, &offset, only_verify,
-																TWLExport_BannerSaveData, type,
-																hdr->base.twl_title_id, 0))) ||
-
-		(hdr->private_save_size && R_FAILED(res = processSection(hdr->private_save_size, 
-																ftr->content_section_hashes[11], buffer,
-																buffer_size, file, &offset, only_verify,
-																TWLExport_PrivateSaveData, type,
-																hdr->base.twl_title_id, 0))))
+	if ((hdr->payload_sizes[9] && R_FAILED(res = processSection(hdr->payload_sizes[9], ftr->content_section_hashes[9], buffer, buffer_size, file, &offset, only_verify, TWLExport_PublicSaveData, type, hdr->base.twl_title_id, 0))) ||
+		(hdr->payload_sizes[10] && R_FAILED(res = processSection(hdr->payload_sizes[10], ftr->content_section_hashes[10], buffer, buffer_size, file, &offset, only_verify, TWLExport_BannerSaveData, type, hdr->base.twl_title_id, 0))) ||
+		(hdr->private_save_size && R_FAILED(res = processSection(hdr->private_save_size, ftr->content_section_hashes[11], buffer, buffer_size, file, &offset, only_verify, TWLExport_PrivateSaveData, type, hdr->base.twl_title_id, 0))))
 	{
-		if (!only_verify) AM9_InstallTitleCancel();
-			CLOSEFILE_RET(res)
+		if (!only_verify)
+			AM9_InstallTitleCancel();
+		
+		CLOSEFILE_RET(res)
 	}
 
 	if (!only_verify && (R_FAILED(res = AM9_InstallTitleFinish()) ||
 		R_FAILED(res = AM9_InstallTitlesCommit(MediaType_NAND, 1, 1 /* temp db? */, &title_id))))
 	{
-		if (!only_verify) AM9_InstallTitleCancel();
-			CLOSEFILE_RET(res)
+		if (!only_verify)
+			AM9_InstallTitleCancel();
+		
+		CLOSEFILE_RET(res)
 	}
 
 	CLOSEFILE_RET(0)
@@ -538,8 +533,8 @@ Result AM_ReadTWLBackupInfo(u32 buffer_size, u32 export_info_size, u32 banner_si
 	u32 header_fullsize        = alignMeta(info->header_size);
 	u32 banner_header_fullsize = banner_fullsize + header_fullsize;
 
-	if (buffer_size < banner_header_fullsize) // real am doesn't do this because ???
-		CLOSEFILE_RET(AM_GENERAL_INVALIDARG)     // saves us some checks afterwards
+	if (buffer_size < banner_header_fullsize) // stock am doesn't do this because ???
+		CLOSEFILE_RET(AM_GENERAL_INVALIDARG) // saves us some checks afterwards
 
 	u64 export_filesize;
 
@@ -603,7 +598,7 @@ Result AM_ReadTWLBackupInfo(u32 buffer_size, u32 export_info_size, u32 banner_si
 		export_info.reserved_pad      = 0;
 		export_info.required_size     = hdr->base.required_size;
 
-		// fun fact: real am doesn't even check the copy size here :)
+		// fun fact: stock am doesn't even check the copy size here :)
 		_memcpy(out_export_info, &export_info, MIN(export_info_size, sizeof(AM_TWLExportInfo)));
 	}
 

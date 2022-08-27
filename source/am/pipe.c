@@ -218,7 +218,7 @@ static Result AM_Pipe_CIA_Write(void *data, u64 offset, u32 size, u32 flags, voi
 
 				// ticket isn't written crypted, so we don't care about alignments
 
-				u32 write = MIN(MIN(TIK_END(c) - c->offset, size), 0x3000); // am never exceeds 0x3000
+				u32 write = MIN(MIN(TIK_END(c) - c->offset, size), 0x3000); // stock am never exceeds 0x3000
 
 				DEBUG_PRINTF("install ticket write size: ", write);
 
@@ -372,7 +372,7 @@ static Result AM_Pipe_CIA_Write(void *data, u64 offset, u32 size, u32 flags, voi
 
 				u32 remaining_size = TMD_END(c) - c->offset;
 				bool last_write = size >= remaining_size;
-				u32 write = last_write ? remaining_size : MIN(MIN(remaining_size, size), 0x3000); // am never exceeds 0x3000
+				u32 write = last_write ? remaining_size : MIN(MIN(remaining_size, size), 0x3000); // stock am never exceeds 0x3000
 				
 				if (!last_write)
 				{
@@ -570,7 +570,7 @@ static Result AM_Pipe_CIA_Write(void *data, u64 offset, u32 size, u32 flags, voi
 				{
 					u32 remaining_size = c->cur_content_end_offs - c->offset;
 					bool last_write = size >= remaining_size;
-					u32 write = last_write ? remaining_size : MIN(remaining_size, size); // am never exceeds 0x3000
+					u32 write = last_write ? remaining_size : MIN(remaining_size, size); // stock am never exceeds 0x3000
 					
 					if (!last_write)
 					{
@@ -746,6 +746,7 @@ Result AM_Pipe_CreateImportHandle(AM_Pipe *pipe, AM_PipeWriteImpl impl, void *da
 	// expected value: false, value to update to: true
 	if (!atomicUpdateState(&pipe->init, true, false))
 	{
+		DEBUG_PRINT("pipe already initialized!\n");
 		RecursiveLock_Unlock(&pipe->lock);
 		return AM_PIPE_ALREADY_INITIALIZED;
 	}
@@ -757,6 +758,7 @@ Result AM_Pipe_CreateImportHandle(AM_Pipe *pipe, AM_PipeWriteImpl impl, void *da
 
 	if (R_FAILED(res))
 	{
+		DEBUG_PRINTF("svcCreateSessionToPort failed: ", res);
 		RecursiveLock_Unlock(&pipe->lock);
 		return res;
 	}
@@ -766,12 +768,19 @@ Result AM_Pipe_CreateImportHandle(AM_Pipe *pipe, AM_PipeWriteImpl impl, void *da
 
 	// must wait for the pipe thread to start, else the user could try am:pipe ipcs while we're not 
 	// ready yet
+
+	DEBUG_PRINT("waiting for thread to start...\n");
+
 	LightEvent_Wait(&pipe->event);
 
 	// safe to send handle now
 	*import = session;
 
+	DEBUG_PRINT("handle sent.\n");
+
 	RecursiveLock_Unlock(&pipe->lock);
+
+	DEBUG_PRINT("successfully created import handle.\n");
 
 	return res;
 }
@@ -895,12 +904,15 @@ void AM_Pipe_HandleIPC()
 			u64 offset = *((u64 *)&ipc_command[1]);
 			u32 size = ipc_command[3];
 			u32 flags = ipc_command[4];
+
 			CHECK_WRONGARG
 			(
 				!IPC_VerifyBuffer(ipc_command[5], IPC_BUFFER_R) ||
 				IPC_GetBufferSize(ipc_command[5]) != size
 			)
+
 			void *buf = (void *)ipc_command[6];
+			
 			Result res = GLOBAL_PipeManager.write(GLOBAL_PipeManager.data, offset, size, flags, buf, &written);
 
 			ipc_command[0] = IPC_MakeHeader(0x0803, 2, 2);

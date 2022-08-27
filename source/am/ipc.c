@@ -13,12 +13,15 @@ static u64 findNewestFirmTitleId(u64 *title_ids, u32 count)
 	u64 curr = 0, ret = 0;
 
 	for (u32 i = 0; i < count; i++)
+	{
 		if (!TitleID_IsSystemCTR(title_ids[i]) || !(title_ids[i] & 0x1))
 		{
 			curr = title_ids[i];
+
 			if (((LODWORD(curr) >> 8) & 0xFFFFF) == 0 && (u8)curr > (u8)ret)
 				ret = curr;
 		}
+	}
 
 	return ret;
 }
@@ -194,7 +197,6 @@ static void AM_HandleIPC_Range0x1_0x2D()
 			ipc_command[0] = IPC_MakeHeader(0x0001, 2, 0);
 			ipc_command[1] = res;
 			ipc_command[2] = count;
-			break;
 		}
 		break;
 	case 0x0002: // get title (id) list
@@ -765,8 +767,8 @@ static void AM_HandleIPC_Range0x1_0x2D()
 			CHECK_HEADER(IPC_MakeHeader(0x001E, 3, 8))
 
 			u32 output_info_size = ipc_command[1];
-			u32 buffer_size = ipc_command[2];
-			u32 banner_size = ipc_command[3];
+			u32 banner_size = ipc_command[2];
+			u32 buffer_size = ipc_command[3];
 
 			CHECK_WRONGARG
 			(
@@ -933,14 +935,14 @@ static void AM_HandleIPC_Range0x1_0x2D()
 
 			u32 count = ipc_command[1];
 			u32 tobjcount = count * sizeof(u64);
-			u32 lobjocount = count * sizeof(TicketLimitInfo);
+			u32 lobjcount = count * sizeof(TicketLimitInfo);
 
 			CHECK_WRONGARG
 			(
 				!IPC_VerifyBuffer(ipc_command[2], IPC_BUFFER_R) ||
 				IPC_GetBufferSize(ipc_command[2]) != tobjcount ||
 				!IPC_VerifyBuffer(ipc_command[4], IPC_BUFFER_W) ||
-				IPC_GetBufferSize(ipc_command[4]) != lobjocount
+				IPC_GetBufferSize(ipc_command[4]) != lobjcount
 			)
 
 			u64 *ticket_ids = (u64 *)ipc_command[3];
@@ -953,13 +955,13 @@ static void AM_HandleIPC_Range0x1_0x2D()
 			ipc_command[1] = res;
 			ipc_command[2] = IPC_Desc_Buffer(tobjcount, IPC_BUFFER_R);
 			ipc_command[3] = (u32)ticket_ids;
-			ipc_command[4] = IPC_Desc_Buffer(lobjocount, IPC_BUFFER_W);
+			ipc_command[4] = IPC_Desc_Buffer(lobjcount, IPC_BUFFER_W);
 			ipc_command[5] = (u32)infos;
 		}
 		break;
 	case 0x0027: // get demo launch infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0027, 2, 4))
+			CHECK_HEADER(IPC_MakeHeader(0x0027, 1, 4))
 
 			u32 count = ipc_command[1];
 			u32 tcount = count * sizeof(u64);
@@ -991,8 +993,8 @@ static void AM_HandleIPC_Range0x1_0x2D()
 			CHECK_HEADER(IPC_MakeHeader(0x0028, 4, 8))
 
 			u32 output_info_size = ipc_command[1];
-			u32 buffer_size = ipc_command[2];
-			u32 banner_size = ipc_command[3];
+			u32 banner_size = ipc_command[2];
+			u32 buffer_size = ipc_command[3];
 			// u32 unk = ipc_command[4] ? unused ?
 
 			CHECK_WRONGARG
@@ -1183,7 +1185,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 	}
 }
 
-void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
+static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 	u32 cmd_header = ipc_command[0];
@@ -1760,7 +1762,7 @@ void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 	}
 }
 
-void AM_HandleIPC_Range0x1001_0x100D()
+static void AM_HandleIPC_Range0x1001_0x100D()
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 	u32 cmd_header = ipc_command[0];
@@ -1935,6 +1937,7 @@ void AM_HandleIPC_Range0x1001_0x100D()
 			ipc_command[2] = IPC_Desc_Buffer(iobjcount, IPC_BUFFER_R);
 			ipc_command[3] = (u32)title_ids;
 			ipc_command[4] = IPC_Desc_Buffer(cobjcount, IPC_BUFFER_W);
+			ipc_command[5] = (u32)infos;
 		}
 		break;
 	case 0x1006: // get dlc or license ticket count
@@ -1993,6 +1996,7 @@ void AM_HandleIPC_Range0x1001_0x100D()
 			ipc_command[1] = res;
 			ipc_command[2] = count;
 			ipc_command[3] = IPC_Desc_Buffer(iobjcount, IPC_BUFFER_W);
+			ipc_command[4]  = (u32)infos;
 		}
 		break;
 	case 0x1008: // get dlc or license item rights
@@ -2175,7 +2179,7 @@ void AM_HandleIPC_Range0x1001_0x100D()
 	}
 }
 
-void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
+static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 	u32 cmd_header = ipc_command[0];
@@ -2543,7 +2547,7 @@ void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		{
 			CHECK_HEADER(IPC_MakeHeader(0x0810, 1, 0))
 
-			u16 content_index = (u16)ipc_command[0];
+			u16 content_index = (u16)ipc_command[1];
 
 			Result res = 0;
 
@@ -2672,6 +2676,7 @@ void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 			ipc_command[1] = res;
 			ipc_command[2] = count;
 			ipc_command[3] = IPC_Desc_Buffer(tobjcount, IPC_BUFFER_W);
+			ipc_command[4] = (u32)indices;
 		}
 		break;
 	case 0x0815: // get current import content contexts
@@ -2680,7 +2685,7 @@ void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 
 			u32 count = ipc_command[1];
 			u32 tobjcount = count * sizeof(u16);
-			u32 cobjcount = count * sizeof(u64);
+			u32 cobjcount = count * sizeof(ImportContentContext);
 
 			CHECK_WRONGARG
 			(
@@ -2770,7 +2775,7 @@ void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 			void *buf0 = (void *)ipc_command[7], *buf1 = (void *)ipc_command[9], *buf2 = (void *)ipc_command[11];
 			(void)buf0, (void)buf1, (void)buf2, (void)unk64;
 
-			u32 unk = 0; // am doesn't initialize this value to anything, i'll just use 0
+			u32 unk = 0; // stock am doesn't initialize this value to anything, i'll just use 0
 
 			ipc_command[0] = IPC_MakeHeader(0x0817, 2, 6);
 			ipc_command[1] = AM_NOT_IMPLEMENTED;
@@ -2842,15 +2847,15 @@ void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 			ipc_command[1] = res;
 			ipc_command[2] = IPC_Desc_Buffer(c0_size, IPC_BUFFER_R);
 			ipc_command[3] = (u32)c0;
-			ipc_command[2] = IPC_Desc_Buffer(c1_size, IPC_BUFFER_R);
-			ipc_command[3] = (u32)c1;
-			ipc_command[2] = IPC_Desc_Buffer(c2_size, IPC_BUFFER_R);
-			ipc_command[3] = (u32)c2;
-			ipc_command[2] = IPC_Desc_Buffer(c3_size, IPC_BUFFER_R);
-			ipc_command[3] = (u32)c3;
+			ipc_command[4] = IPC_Desc_Buffer(c1_size, IPC_BUFFER_R);
+			ipc_command[5] = (u32)c1;
+			ipc_command[6] = IPC_Desc_Buffer(c2_size, IPC_BUFFER_R);
+			ipc_command[7] = (u32)c2;
+			ipc_command[8] = IPC_Desc_Buffer(c3_size, IPC_BUFFER_R);
+			ipc_command[9] = (u32)c3;
 		}
 		break;
-	case 0x081A:
+	case 0x081A: // import certificate
 		{
 			CHECK_HEADER(IPC_MakeHeader(0x081A, 1, 2))
 
@@ -3252,9 +3257,21 @@ void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 // sys: 0x1-0x2D, 0x1001-0x100D
 // app: 0x1001-0x100D
 
+#ifdef DEBUG_PRINTS
+	#define GET_OGHDR u32 header_og = ipc_command[0];
+	#define PRINT_RET(name) \
+		u32 header_ret = ipc_command[0]; \
+		Result res = ipc_command[1]; \
+		DEBUG_PRINTF3("[am:" name "] src (", header_og, ") -> (", header_ret, ") replying with result ", res);
+#else
+	#define GET_OGHDR
+	#define PRINT_RET(name)
+#endif
+
 void AMNET_HandleIPC(AM_SessionData *session)
 {
 	u32 *ipc_command  = getThreadLocalStorage()->ipc_command;
+	GET_OGHDR
 	u16 cmd_id = (u16)(ipc_command[0] >> 16);
 
 	if      (CMD_ID_RANGE(cmd_id, 0x1   , 0x2D  )) AM_HandleIPC_Range0x1_0x2D();
@@ -3262,17 +3279,22 @@ void AMNET_HandleIPC(AM_SessionData *session)
 	else if (CMD_ID_RANGE(cmd_id, 0x801 , 0x829 )) AM_HandleIPC_Range0x801_0x829(session);
 	else if (CMD_ID_RANGE(cmd_id, 0x1001, 0x100D)) AM_HandleIPC_Range0x1001_0x100D();
 	else RET_OS_INVALID_IPCARG
+
+	PRINT_RET("net")
 }
 
 void AMU_HandleIPC(AM_SessionData *session)
 {
 	u32 *ipc_command  = getThreadLocalStorage()->ipc_command;
+	GET_OGHDR
 	u16 cmd_id = (u16)(ipc_command[0] >> 16);
 
 	if      (CMD_ID_RANGE(cmd_id, 0x1, 0x2D))      AM_HandleIPC_Range0x1_0x2D();
 	else if (CMD_ID_RANGE(cmd_id, 0x401, 0x419))   AM_HandleIPC_Range0x401_0x419(session);
 	else if (CMD_ID_RANGE(cmd_id, 0x1001, 0x100D)) AM_HandleIPC_Range0x1001_0x100D();
 	else RET_OS_INVALID_IPCARG;
+
+	PRINT_RET("u")
 }
 
 void AMSYS_HandleIPC(AM_SessionData *session)
@@ -3280,11 +3302,14 @@ void AMSYS_HandleIPC(AM_SessionData *session)
 	(void)session;
 
 	u32 *ipc_command  = getThreadLocalStorage()->ipc_command;
+	GET_OGHDR
 	u16 cmd_id = (u16)(ipc_command[0] >> 16);
 
 	if      (CMD_ID_RANGE(cmd_id, 0x1, 0x2D))      AM_HandleIPC_Range0x1_0x2D();
 	else if (CMD_ID_RANGE(cmd_id, 0x1001, 0x100D)) AM_HandleIPC_Range0x1001_0x100D();
 	else RET_OS_INVALID_IPCARG;
+
+	PRINT_RET("sys")
 }
 
 void AMAPP_HandleIPC(AM_SessionData *session)
@@ -3292,10 +3317,13 @@ void AMAPP_HandleIPC(AM_SessionData *session)
 	(void)session;
 
 	u32 *ipc_command  = getThreadLocalStorage()->ipc_command;
+	GET_OGHDR
 	u16 cmd_id = (u16)(ipc_command[0] >> 16);
 
 	if (CMD_ID_RANGE(cmd_id, 0x1001, 0x100D)) AM_HandleIPC_Range0x1001_0x100D();
 	else RET_OS_INVALID_IPCARG;
+
+	PRINT_RET("app")
 }
 
 void (* AM_IPCHandlers[4])(AM_SessionData *) =

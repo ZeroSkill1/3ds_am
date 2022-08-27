@@ -4,7 +4,7 @@ __attribute__((section(".data.demodb"), aligned(4))) Database GLOBAL_DemoDatabas
 
 static bool findIndex(Database *db, u64 title_id, u16 *index)
 {
-	title_id = title_id & 0x0000FFFFFFFFFFFF; // remove console type
+	title_id &= 0x0000FFFFFFFFFFFF; // remove console type
 
 	if (!db->info.entry_count) // no entries
 		return false;
@@ -41,46 +41,30 @@ ret:
 
 static u8 readPlayCount(Database *db, u16 index)
 {
-	DatabaseEntry entry = { 0 };
+	DatabaseEntry entry;
 	u32 read;
 
-	Err_FailedThrow(FSFile_Read(
-						&read,
-						db->db_file,
-						sizeof(DatabaseHeader) + (sizeof(u64) * SAVE_MAX_ENTRIES) + (sizeof(DatabaseEntry) * index),
-						sizeof(DatabaseEntry),
-						&entry))
+	Err_FailedThrow(FSFile_Read(&read, db->db_file, sizeof(DatabaseHeader) + (sizeof(u64) * SAVE_MAX_ENTRIES) + (sizeof(DatabaseEntry) * index), sizeof(DatabaseEntry), &entry))
 
 	return entry.play_count;
 }
 
 static void writePlayCount(Database *db, u16 index, u8 count)
 {
-	DatabaseEntry entry = { 0 };
+	DatabaseEntry entry;
 	u32 written;
 
 	entry.play_count = count;
 
-	Err_FailedThrow(FSFile_Write(
-						&written,
-						db->db_file,
-						sizeof(DatabaseHeader) + (sizeof(u64) * SAVE_MAX_ENTRIES) + (sizeof(DatabaseEntry) * index),
-						sizeof(DatabaseEntry),
-						FS_WRITE_FLUSH,
-						&entry))
+	Err_FailedThrow(FSFile_Write(&written, db->db_file, sizeof(DatabaseHeader) + (sizeof(u64) * SAVE_MAX_ENTRIES) + (sizeof(DatabaseEntry) * index), sizeof(DatabaseEntry), FS_WRITE_FLUSH, &entry))
 }
 
 static void writeTitleId(Database *db, u16 index, u64 title_id)
 {
-	title_id = title_id & 0x0000FFFFFFFFFFFF; // remove console type
+	title_id &= 0x0000FFFFFFFFFFFF; // remove console type
 	u32 written;
 
-	Err_FailedThrow(FSFile_Write(
-						&written,db->db_file,
-						sizeof(DatabaseHeader) + (sizeof(u64) * index),
-						sizeof(u64),
-						FS_WRITE_FLUSH,
-						&title_id))
+	Err_FailedThrow(FSFile_Write(&written,db->db_file, sizeof(DatabaseHeader) + (sizeof(u64) * index), sizeof(u64), FS_WRITE_FLUSH, &title_id))
 }
 
 void AM_DemoDatabase_Initialize(Database *db)
@@ -93,12 +77,7 @@ void AM_DemoDatabase_Initialize(Database *db)
 	bool save_created_new = false;
 	Result res;
 
-	res = FSUser_OpenArchive(
-			ARCHIVE_SYSTEM_SAVEDATA,
-			PATH_BINARY,
-			&save_info,
-			sizeof(save_info),
-			&db->save_archive);
+	res = FSUser_OpenArchive(ARCHIVE_SYSTEM_SAVEDATA, PATH_BINARY, &save_info, sizeof(save_info), &db->save_archive);
 
 	// perhaps archive doesn't exist yet
 	if (R_FAILED(res))
@@ -108,57 +87,20 @@ void AM_DemoDatabase_Initialize(Database *db)
 			FSUser_DeleteSystemSaveData(&save_info);
 
 		// can now recreate archive
-		Err_FailedThrow(FSUser_CreateSystemSaveData(
-			&save_info,
-			SAVE_ARCHIVE_SIZE,
-			0x1000,
-			10,
-			10,
-			getBucketCount(10),
-			getBucketCount(10),
-			true));
+		Err_FailedThrow(FSUser_CreateSystemSaveData(&save_info, SAVE_ARCHIVE_SIZE, 0x1000, 10, 10, getBucketCount(10), getBucketCount(10), true));
 
 		// if still fail, something is seriously fucked
-		Err_FailedThrow(FSUser_OpenArchive(
-							ARCHIVE_SYSTEM_SAVEDATA,
-							PATH_BINARY,
-							&save_info,
-							sizeof(save_info),
-							&db->save_archive))
+		Err_FailedThrow(FSUser_OpenArchive(ARCHIVE_SYSTEM_SAVEDATA, PATH_BINARY, &save_info, sizeof(save_info), &db->save_archive))
 	}
 
 	// let's see if the file exists now
-	res = FSUser_OpenFile(
-			0,
-			db->save_archive,
-			PATH_UTF16,
-			sizeof(SAVE_FILE_PATH),
-			FS_OPEN_READ | FS_OPEN_WRITE,
-			0,
-			SAVE_FILE_PATH,
-			&db->db_file);
+	res = FSUser_OpenFile(0, db->save_archive, PATH_UTF16, sizeof(SAVE_FILE_PATH), FS_OPEN_READ | FS_OPEN_WRITE, 0, SAVE_FILE_PATH, &db->db_file);
 
 	// could be simply the fact that it doesn't exist
 	if (R_FAILED(res))
 	{
-		Err_FailedThrow(FSUser_CreateFile(
-							0,
-							db->save_archive,
-							PATH_UTF16,
-							sizeof(SAVE_FILE_PATH),
-							0,
-							SAVE_FILE_SIZE,
-							SAVE_FILE_PATH))
-
-		Err_FailedThrow(FSUser_OpenFile(
-							0,
-							db->save_archive,
-							PATH_UTF16,
-							sizeof(SAVE_FILE_PATH),
-							FS_OPEN_READ | FS_OPEN_WRITE,
-							0,
-							SAVE_FILE_PATH,
-							&db->db_file))
+		Err_FailedThrow(FSUser_CreateFile(0, db->save_archive, PATH_UTF16, sizeof(SAVE_FILE_PATH), 0, SAVE_FILE_SIZE, SAVE_FILE_PATH))
+		Err_FailedThrow(FSUser_OpenFile(0, db->save_archive, PATH_UTF16, sizeof(SAVE_FILE_PATH), FS_OPEN_READ | FS_OPEN_WRITE, 0, SAVE_FILE_PATH, &db->db_file))
 
 		save_created_new = true;
 	}
@@ -170,13 +112,7 @@ void AM_DemoDatabase_Initialize(Database *db)
 		Err_FailedThrow(FSFile_Write(&written, db->db_file, 0, 8, FS_WRITE_FLUSH, db->tid_buf))
 
 		for (u32 i = 0; i < (SAVE_FILE_SIZE - 8) / sizeof(db->tid_buf); i += sizeof(db->tid_buf))
-			Err_FailedThrow(FSFile_Write(
-								&written,
-								db->db_file,
-								i + sizeof(DatabaseHeader),
-								sizeof(db->tid_buf),
-								FS_WRITE_FLUSH,
-								db->tid_buf))
+			Err_FailedThrow(FSFile_Write(&written, db->db_file, i + sizeof(DatabaseHeader), sizeof(db->tid_buf), FS_WRITE_FLUSH, db->tid_buf))
 
 		AM_DemoDatabase_CommitSaveData(db);
 		return;
@@ -235,9 +171,9 @@ void AM_DemoDatabase_GetLaunchInfos(Database *db, u64 *title_ids, u32 count, Dem
 
 		for (u32 i = 0; i < batch_tids_count; i++)
 			for (u32 j = 0; j < count; j++)
-				if (db->tid_buf[i] == title_ids[j])
+				if (db->tid_buf[i] == (title_ids[j] & 0x0000FFFFFFFFFFFF))
 				{
-					infos[j].flags = 8;
+					infos[j].flags |= 8;
 					infos[j].playcount = readPlayCount(db, processed + i);
 				}
 
@@ -258,14 +194,20 @@ bool AM_DemoDatabase_HasDemoLaunchRight(Database *db, u64 title_id)
 	DemoLaunchInfo demo_launch_info;
 
 	if (R_FAILED(AM9_GetTicketLimitInfos(1, &title_id, &ticket_limit_info)))
+	{
+		RecursiveLock_Unlock(&db->lock);
 		return false;
+	}
 
 	if (ticket_limit_info.flags)
 	{
 		AM_DemoDatabase_GetLaunchInfos(db, &title_id, 1, &demo_launch_info);
 
 		if (demo_launch_info.flags & 0x8 && demo_launch_info.playcount >= ticket_limit_info.playcount)
+		{
+			RecursiveLock_Unlock(&db->lock);
 			return false;
+		}
 	}
 
 	// at this point we have the launch right
@@ -297,6 +239,5 @@ bool AM_DemoDatabase_HasDemoLaunchRight(Database *db, u64 title_id)
 	AM_DemoDatabase_CommitSaveData(db);
 
 	RecursiveLock_Unlock(&db->lock);
-
 	return true;
 }

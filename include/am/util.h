@@ -58,20 +58,53 @@ static inline bool TitleID_IsDLCOrLicense(u64 title_id)
 	return TitleID_IsDLC(title_id) || TitleID_IsLicense(title_id);
 }
 
-#ifndef RELEASE
-	void int_convert_to_hex(char* out, uint32_t n);
+// i am aware this is quality:tm: code but yes
+
+#ifdef DEBUG_PRINTS
+	void int_convert_to_hex(char* out, uint32_t n, bool newline);
 	#define DEBUG_PRINT(str) svcOutputDebugString(str, sizeof(str) - 1)
 	#define DEBUG_PRINTF(str, num) \
 		{ \
-			svcOutputDebugString(str, sizeof(str) - 1); \
 			char __ibuf[12]; \
-			int_convert_to_hex(__ibuf, num); \
+			\
+			svcOutputDebugString(str, sizeof(str) - 1); \
+			int_convert_to_hex(__ibuf, num, true); \
 			svcOutputDebugString(__ibuf, 11); \
-		} \
+		}
+	#define DEBUG_PRINTF2(str, num, str2, num2) \
+		{ \
+			char __ibuf[12]; \
+			\
+			svcOutputDebugString(str, sizeof(str) - 1); \
+			int_convert_to_hex(__ibuf, num, false); \
+			svcOutputDebugString(__ibuf, 10); \
+			\
+			svcOutputDebugString(str2, sizeof(str2) - 1); \
+			int_convert_to_hex(__ibuf, num2, true); \
+			svcOutputDebugString(__ibuf, 11); \
+		}
+	#define DEBUG_PRINTF3(str, num, str2, num2, str3, num3) \
+		{ \
+			char __ibuf[12]; \
+			\
+			svcOutputDebugString(str, sizeof(str) - 1); \
+			int_convert_to_hex(__ibuf, num, false); \
+			svcOutputDebugString(__ibuf, 10); \
+			\
+			svcOutputDebugString(str2, sizeof(str2) - 1); \
+			int_convert_to_hex(__ibuf, num2, false); \
+			svcOutputDebugString(__ibuf, 10); \
+			\
+			svcOutputDebugString(str3, sizeof(str3) - 1); \
+			int_convert_to_hex(__ibuf, num3, true); \
+			svcOutputDebugString(__ibuf, 11); \
+		}
 
 #else
-	#define DEBUG_PRINT(str) (void)str;
-	#define DEBUG_PRINTF(str, num) (void)str; (void)num;
+	#define DEBUG_PRINT(str) {}
+	#define DEBUG_PRINTF(str, num) {}
+	#define DEBUG_PRINTF2(str, num, str2, num2) {}
+	#define DEBUG_PRINTF3(str, num, str2, num2, str3, num3) {}
 #endif
 
 #endif

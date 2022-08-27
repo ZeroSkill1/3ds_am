@@ -4,6 +4,7 @@ from Cryptodome.Cipher.AES import *
 from typing import BinaryIO, Tuple
 from Cryptodome.Cipher import AES
 from enum import IntEnum
+from math import ceil
 import struct
 import sys
 import os
@@ -32,7 +33,7 @@ class ExportHeader:
 	encrypted_movable_hash: bytes = None
 	zeroiv_crypted_zeros_cbc_block: bytes = None
 	title_id: int = None
-	unk64: int = None
+	required_size: int = None
 	payload_sizes: list[int] = None
 	private_save_size: int = None
 	
@@ -44,7 +45,7 @@ class ExportHeader:
 		self.encrypted_movable_hash         = data[0x8:0x28]
 		self.zeroiv_crypted_zeros_cbc_block = data[0x28:0x38]
 		self.title_id                       = int.from_bytes(data[0x38:0x40], "little")
-		self.unk64                          = int.from_bytes(data[0x40:0x48], "little")
+		self.required_size                  = int.from_bytes(data[0x40:0x48], "little")
 		
 		payload_and_more = data[0x48:]
 		unpack_format = "<" + "I" * section_count
@@ -58,9 +59,9 @@ class ExportHeader:
 			f"Group ID                           : {self.group_id:04X}\n" \
 			f"Title Version                      : {self.title_version}\n" \
 			f"Encrypted movable.sed SHA-256 hash : {self.encrypted_movable_hash.hex().upper()}\n" \
-			f"Zero-iv crypted CBC-block          : {self.zeroiv_crypted_zeros_cbc_block.hex().upper()}\n" \
+			f"Zero-IV crypted CBC-block          : {self.zeroiv_crypted_zeros_cbc_block.hex().upper()}\n" \
 			f"Title ID                           : {self.title_id:016X}\n" \
-			f"Unknown 64-bit integer             : {self.unk64}\n" \
+			f"Required Size:                     : {self.required_size} ({ceil(self.required_size / 1024 / 128):.0F} blocks)\n" \
 			f"Private save size                  : {self.private_save_size if self.private_save_size else 'N/A'}\n"
 
 class TWLExportType(IntEnum):
@@ -114,14 +115,14 @@ def decrypt_and_verify_section(section: ExportSection) -> bytes:
 	return decrypted
 
 def decrypt_verify_section_to_file(export_fp: BinaryIO, path: str, size: int, name: str):
-	print(f"/====== {name} ======\\")
-	print(f"| Offset: 0x{export_fp.tell():X}")
-	print(f"| Size: 0x{size:X} ({size})")
+	print(f"/================== {name} ==================\\")
+	print(f"  Offset: 0x{export_fp.tell():X}")
+	print(f"  Size: 0x{size:X} ({size})")
 	section = read_section(export_fp, size)
-	print(f"| CMAC: {section.mac.hex().upper()}")
-	print(f"| IV: {section.iv.hex().upper()}")
+	print(f"  CMAC: {section.mac.hex().upper()}")
+	print(f"  IV: {section.iv.hex().upper()}")
 	section_decrypted = decrypt_and_verify_section(section)
-	print(f"\\====== {name} ======/\n")
+	print(f"\\================== {name} ==================/\n")
 
 	with open(path, "wb") as f:
 		f.write(section_decrypted)

@@ -12,8 +12,8 @@
 #define SAVE_MAX_ENTRIES  0x1000 // 4096
 
 /*
-	real am refers to the AM save archive as "amsa:"
-	the file is called database.bin, the format is as follows
+	stock am refers to the AM save archive as "amsa:", but since we don't use SDK archives,
+	this archive naming is omitted entirely. the file is called database.bin, the format is as follows:
 
 	everything is little endian
 

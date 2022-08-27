@@ -38,7 +38,7 @@ AccessControlInfo:
   DescVersion                   : 2
 
   MemoryType                    : Base      # Application / System / Base
-  HandleTableSize: 0
+  HandleTableSize: 0x200
 
   SystemSaveDataId1: 0x00010054
 

@@ -20,7 +20,9 @@ static Result CIAReader_ReadEnabledIndices(CIAReader *rd, u16 amount, u16 *indic
 			return AM_GENERAL_IO_FAILURE;
 
 		for (u16 j = 0; j < sizeof(batch); j++)
+		{
 			for (u8 k = 0; k < 8; k++, processed++)
+			{
 				if (batch[j] & (0x80 >> k))
 				{
 					indices[enabled] = processed;
@@ -29,6 +31,8 @@ static Result CIAReader_ReadEnabledIndices(CIAReader *rd, u16 amount, u16 *indic
 					if (enabled == amount)
 						goto exit;
 				}
+			}
+		}
 	}
 exit:
 	*read_indices = enabled;
@@ -81,13 +85,8 @@ Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *si
 
 	for (u16 i = 0; i < tmd_content_count; i++)
 	{
-		if (R_FAILED(res = FSFile_Read(
-							&read,
-							rd->tmd, 
-							sizeof(TMDHeader) + (64 * sizeof(ContentInfoRecord)) + sizeof(ContentChunkRecord) * i,
-							sizeof(ContentChunkRecord),
-							&ccr)))
-							return res;
+		if (R_FAILED(res = FSFile_Read(&read, rd->tmd, sizeof(TMDHeader) + (64 * sizeof(ContentInfoRecord)) + sizeof(ContentChunkRecord) * i, sizeof(ContentChunkRecord), &ccr)))
+			return res;
 
 		for (u16 j = 0; j < read_indices; j++)
 			if (__builtin_bswap16(ccr.Index) == indices[j])

@@ -14,18 +14,7 @@
 #include <memops.h>
 #include <stdint.h>
 
-const u32 heap_size = 0x8000; // retail AM allocates 0xC000, stacks in this case are in .data so we can use less
-
-__attribute__((section(".data.heap")))
-void *heap = NULL;
-
-__attribute__((section(".data.notif_id")))
-u32 notification_id = 0;
-
-extern void (* AM_IPCHandlers[4])(AM_SessionData *);
-
-__attribute__((section(".data.sys_update_mutex")))
-Handle GLOBAL_SystemUpdaterMutex;
+#define countof(arr) (sizeof(arr) / sizeof(arr[0]))
 
 // service constants
 
@@ -54,6 +43,17 @@ static const struct
 	{ .name = SERVICE_NAME ":app", .len = sizeof(SERVICE_NAME ":app" ) - 1 }
 };
 
+const u32 heap_size = 0x8000; // stock am allocates 0xC000, stacks in this case are in .data so we can use less
+
+__attribute__((section(".data.heap")))
+void *heap = NULL;
+
+__attribute__((section(".data.notif_id")))
+u32 notification_id = 0;
+
+__attribute__((section(".data.sys_update_mutex")))
+Handle GLOBAL_SystemUpdaterMutex;
+
 // thread stacks for non-pipe threads (5), and one pipe thread (1)
 __attribute__((section(".data.stacks"),aligned(8)))
 static u8 AM_SessionThreadStacks[AM_MAX_TOTAL_SESSIONS + 1][0x1000];
@@ -69,6 +69,21 @@ static AM_SessionData AM_SessionsData[AM_MAX_TOTAL_SESSIONS + 1] =
 	{ .thread = 0, .session = 0, .handle_ipc = NULL, .importing_title = false, .cia_deplist_buf = { 0 }, .media = 0 },
 };
 
+// session storage/thread management
+
+void _thread_start();
+
+Result startThread(Handle *thread, void (* function)(void *), void *arg, void *stack_top, s32 priority, s32 processor_id)
+{
+	if ((u32)(stack_top) & (0x8 - 1))
+		return OS_MISALIGNED_ADDRESS;
+	//_thread_start will pop these out
+	((u32 *)stack_top)[-1] = (u32)function;
+	((u32 *)stack_top)[-2] = (u32)arg;
+
+    return svcCreateThread(thread, _thread_start, function, stack_top, priority, processor_id);
+}
+
 static inline void freeThread(Handle *thread)
 {
 	if (thread && *thread)
@@ -78,6 +93,8 @@ static inline void freeThread(Handle *thread)
 		*thread = 0;
 	}
 }
+
+extern void (* AM_IPCHandlers[4])(AM_SessionData *);
 
 static inline AM_SessionData *getNewSessionData(Handle session, u8 *index, s32 service_index)
 {
@@ -94,6 +111,8 @@ static inline AM_SessionData *getNewSessionData(Handle session, u8 *index, s32 s
 
 	return NULL;
 }
+
+// regular service thread entrypoint
 
 void tmain(void *arg)
 {
@@ -124,11 +143,18 @@ void tmain(void *arg)
 	data->session = 0;
 }
 
+// pipe thread entry point
+
 void pipe_tmain()
 {
-	DEBUG_PRINT("hello, pipe thread has started\n");
+	DEBUG_PRINT("[pipe thread] hello, pipe thread has started\n");
+	DEBUG_PRINT("[pipe thread] signaling event\n");
 
 	LightEvent_Signal(&GLOBAL_PipeManager.event);
+
+	DEBUG_PRINT("[pipe thread] event signaled\n");
+
+	// zero-out static buffers so they can't be used
 
 	u32 *static_bufs = getThreadLocalStorage()->ipc_static_buffers;
 
@@ -140,6 +166,7 @@ void pipe_tmain()
 	static_bufs[5] = (u32)NULL;
 
 	Handle handles[2] = { GLOBAL_PipeManager.current_session, GLOBAL_PipeManager.thread_close_event };
+	Handle target = 0;
 
 	Result res;
 	s32 index;
@@ -148,22 +175,40 @@ void pipe_tmain()
 
 	while (true)
 	{
-		res = svcWaitSynchronizationN(&index, handles, 2, false, -1);
+		res = svcReplyAndReceive(&index, handles, 2, target);
 
 		if (R_FAILED(res))
 		{
 			if (res != OS_REMOTE_SESSION_CLOSED)
 				Err_Panic(res)
 
+			target = 0;
 			break;
 		}
 
 		if (index == 0)
+		{
+#ifdef DEBUG_PRINTS
+			u32 *ipc_command = getThreadLocalStorage()->ipc_command;
+
+			u32 header_og = ipc_command[0];
+
 			AM_Pipe_HandleIPC();
+
+			u32 header_ret = ipc_command[0];
+			Result r = ipc_command[1];
+
+			DEBUG_PRINTF3("[am:pipe] src (", header_og, ") -> (", header_ret, ") replying with result ", r);
+#else
+			AM_Pipe_HandleIPC();
+#endif
+		}
 		else if (index == 1)
 			break;
 		else
 			Err_Panic(OS_EXCEEDED_HANDLES_INDEX)
+
+		target = handles[index];
 	}
 
 	Err_FailedThrow(svcCloseHandle(GLOBAL_PipeManager.current_session))
@@ -171,25 +216,12 @@ void pipe_tmain()
 
 	if (GLOBAL_PipeManager.write)
 	{
-		free(GLOBAL_PipeManager.data);
+		if (GLOBAL_PipeManager.data) free(GLOBAL_PipeManager.data);
 		GLOBAL_PipeManager.data = NULL;
 		GLOBAL_PipeManager.write = NULL;
 	}
 
-	DEBUG_PRINT("goodbye, pipe thread closing\n");
-}
-
-void _thread_start();
-
-Result startThread(Handle *thread, void (* function)(void *), void *arg, void *stack_top, s32 priority, s32 processor_id)
-{
-	if ((u32)(stack_top) & (0x8 - 1))
-		return OS_MISALIGNED_ADDRESS;
-	//_thread_start will pop these out
-	((u32 *)stack_top)[-1] = (u32)function;
-	((u32 *)stack_top)[-2] = (u32)arg;
-
-    return svcCreateThread(thread, _thread_start, function, stack_top, priority, processor_id);
+	DEBUG_PRINT("[pipe thread] goodbye\n");
 }
 
 // BSS and heap
@@ -236,6 +268,7 @@ void initializeHeap(void)
 void deinitializeHeap()
 {
 	void *tmp;
+
 	if (R_FAILED(svcControlMemory(&tmp, heap, 0x0, heap_size, MEMOP_FREE, 0x0)))
 		svcBreak(USERBREAK_PANIC);
 }
@@ -263,35 +296,40 @@ void AM_Main()
 		handles[2] = am:sys  service handle
 		handles[3] = am:u    service handle
 		handles[4] = am:app  service handle
-		handles[5] = am:pipe private port handle
+		handles[5] = am:pipe pipe port server handle
     */
 	Handle handles[AM_SERVICE_COUNT + 2];
 
-	// handles[0]
+	// handles[0] - semaphore
 	Err_FailedThrow(SRV_EnableNotification(&handles[0]));
 	
-	// handles[1] through handles[4]
+	// handles[1] through handles[4] - services
 	for (u8 i = 0, j = 1; i < AM_SERVICE_COUNT; i++, j++)
 		Err_FailedThrow(SRV_RegisterService(&handles[j], AM_ServiceNames[i].name, AM_ServiceNames[i].len, AM_MAX_SESSIONS_PER_SERVICE))
 
-	// handles[5]
+	// handles[5] - pipe port server
 	Err_FailedThrow(svcCreatePort(&handles[5], &GLOBAL_PipeManager.port_client, NULL, 1))
 
+	// locks pipe manager to one thread at a time
 	RecursiveLock_Init(&GLOBAL_PipeManager.lock);
+
+	// locks cia reader to one thread at a time
 	RecursiveLock_Init(&GLOBAL_CIAReader_Lock);
 
+	// used to do ??? in home menu and nim(?)
 	Err_FailedThrow(svcCreateMutex(&GLOBAL_SystemUpdaterMutex, 0))
+
+	// used to tell pipe thread to exit when pausing or cancelling imports
 	Err_FailedThrow(svcCreateEvent(&GLOBAL_PipeManager.thread_close_event, RESET_ONESHOT))
 
 	// initialize demo db
-
 	AM_DemoDatabase_Initialize(&GLOBAL_DemoDatabase);
 
 	while (true)
 	{
 		s32 index;
 
-		Result res = svcWaitSynchronizationN(&index, handles, sizeof(handles) / sizeof(handles[0]), false, -1);
+		Result res = svcWaitSynchronizationN(&index, handles, countof(handles), false, -1);
 
 		if (R_FAILED(res))
 			Err_Throw(res);
@@ -302,7 +340,7 @@ void AM_Main()
 			if (notification_id == 0x100) // terminate
 				break;
 		}
-		else if (SERVICE_REPLY(index)) // service handle received request to open session
+		else if (SERVICE_REPLY(index)) // service handle received request to create session
 		{
 			Handle session, thread;
 			u8 stack_index;
@@ -315,42 +353,37 @@ void AM_Main()
 
 			data->thread = thread;
 		}
-		else if (PIPE_REPLY(index))
+		else if (PIPE_REPLY(index)) // pipe server session received request to open pipe session
 		{
 			Err_FailedThrow(svcAcceptSession(&GLOBAL_PipeManager.current_session, handles[5]))
 
 			freeThread(&GLOBAL_PipeManager.thread);
 
-			Err_FailedThrow(startThread(&GLOBAL_PipeManager.thread, &pipe_tmain, NULL, AM_SessionThreadStacks[4], 61, -2))
+			Err_FailedThrow(startThread(&GLOBAL_PipeManager.thread, &pipe_tmain, NULL, AM_SessionThreadStacks[5] + 0x1000, 61, -2))
 		}
-		else
+		else // invalid index
 			Err_Throw(AM_INTERNAL_RANGE)
 	}
 
 	// save, commit and close demodb
-
 	AM_DemoDatabase_Close(&GLOBAL_DemoDatabase);
 
 	// wait and close thread handles
-
 	for (u8 i = 0; i < AM_MAX_TOTAL_SESSIONS + 1; i++)
 		freeThread(&AM_SessionsData[i].thread);
 
 	// official services to do this, so why not
-
 	Err_FailedThrow(svcCloseHandle(handles[0]))
 
 	// unregister services
-
 	for (u8 i = 0, j = 1; i < AM_SERVICE_COUNT; i++, j++)
 	{
 		Err_FailedThrow(SRV_UnregisterService(AM_ServiceNames[i].name, AM_ServiceNames[i].len))
 		Err_FailedThrow(svcCloseHandle(handles[j]));
 	}
 
-	// pipe port client
+	// pipe stuff
 	Err_FailedThrow(svcCloseHandle(handles[5]));
-
 	Err_FailedThrow(svcCloseHandle(GLOBAL_PipeManager.thread_close_event))
 
 	fsUserExit();
