@@ -1,6 +1,8 @@
 .vscode/
 .cache/
 
+compile_flags.txt
+
 privatesav-dsiware-exports/
 dsiware-exports/
 build/
