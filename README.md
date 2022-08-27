@@ -4,7 +4,7 @@ An open-source reimplementation of the ARM11-side AM (**A**pplication **M**anage
 This is my first extensive reverse-engineer-and-reimplement project, it's been a while since I started and now it's finally done.
 
 All of the AM-specific code has been written based on the stock implementation with some differences:
-- Thread stacks are using memory in the `.data` section instead of being dynamically aligned (along with some other data being in `.data` instead of being heap-allocated)
+- Thread stacks are using memory in the `.data` section instead of being dynamically allocated (along with some other data being in `.data` instead of being heap-allocated)
 - The CIA installation code supports misaligned writes and installs contents in batches of 64 or less depending on the amount of contents.
 - Content import write sizes are now limited exactly to what AM9 supports.
 
