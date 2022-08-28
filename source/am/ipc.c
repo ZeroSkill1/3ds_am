@@ -265,10 +265,15 @@ static void AM_HandleIPC_Range0x1_0x2D()
 			MediaType media_type = (MediaType)ipc_command[1];
 			u64 title_id = *((u64 *)(&ipc_command[2]));
 
-			Result res = !TitleID_IsAnySystem(title_id) ?
-					AM9_DeleteTitle(media_type, title_id) :
-					AM_TRYING_TO_UNINSTALL_SYSAPP;
-			assertNotAmOrFsWithMedia(res, media_type);
+			Result res = 0;
+
+			if (TitleID_IsAnySystem(title_id))
+				res = AM_TRYING_TO_UNINSTALL_SYSAPP;
+			else
+			{
+				res = AM9_DeleteTitle(media_type, title_id);
+				assertNotAmOrFsWithMedia(res, media_type);
+			}
 
 			ipc_command[0] = IPC_MakeHeader(0x0004, 1, 0);
 			ipc_command[1] = res;
@@ -281,7 +286,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 			MediaType media_type = (MediaType)ipc_command[1];
 			u64 title_id = *((u64 *)(&ipc_command[2]));
 
-			char product_code[16] = { 0 };
+			char product_code[16];
 
 			Result res = AM9_GetTitleProductCode(product_code, media_type, title_id);
 			assertNotAmOrFsWithMedia(res, media_type);
@@ -384,7 +389,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		{
 			CHECK_HEADER(IPC_MakeHeader(0x000B, 1, 0))
 
-			MediaType media_type = (MediaType)ipc_command[0];
+			MediaType media_type = (MediaType)ipc_command[1];
 
 			u32 count = 0;
 
@@ -473,7 +478,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		{
 			CHECK_HEADER(IPC_MakeHeader(0x000F, 3, 0))
 
-			MediaType media_type = (MediaType)ipc_command[0];
+			MediaType media_type = (MediaType)ipc_command[1];
 			u64 title_id = *((u64 *)&ipc_command[2]);
 
 			u32 count = 0;
@@ -1916,7 +1921,7 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 				IPC_GetBufferSize(ipc_command[5]) != cobjcount
 			)
 
-			u64 *title_ids = (u64 *)ipc_command[3];
+			u64 *title_ids = (u64 *)ipc_command[4];
 			TitleInfo *infos = (TitleInfo *)ipc_command[5];
 
 			Result res = 0;
@@ -2859,15 +2864,15 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		{
 			CHECK_HEADER(IPC_MakeHeader(0x081A, 1, 2))
 
-			u32 size = ipc_command[0];
+			u32 size = ipc_command[1];
 
 			CHECK_WRONGARG
 			(
-				!IPC_VerifyBuffer(ipc_command[1], IPC_BUFFER_R) ||
-				IPC_GetBufferSize(ipc_command[1]) != size
+				!IPC_VerifyBuffer(ipc_command[2], IPC_BUFFER_R) ||
+				IPC_GetBufferSize(ipc_command[2]) != size
 			)
 
-			void *certificate = (void *)ipc_command[2];
+			void *certificate = (void *)ipc_command[3];
 
 			Result res = AM9_ImportCertificate(size, certificate);
 			assertNotAm(res);
