@@ -1922,7 +1922,7 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 			)
 
 			u64 *title_ids = (u64 *)ipc_command[4];
-			TitleInfo *infos = (TitleInfo *)ipc_command[5];
+			TitleInfo *infos = (TitleInfo *)ipc_command[6];
 
 			Result res = 0;
 
