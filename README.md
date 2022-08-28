@@ -15,6 +15,7 @@ Instead, I decided to give each command a small description that actually matche
 
 Requirements:
 - Latest version of devkitARM
+- makerom on PATH
 
 The following environment variables can be set to alter the output:
 - `DEBUG`: if this is set, all optimization is disabled and debug symbols are included in the output ELF.
