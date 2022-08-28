@@ -1801,7 +1801,7 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u64 title_id = *((u64 *)&ipc_command[2]);
-			u32 count = ipc_command[3];
+			u32 count = ipc_command[4];
 			u32 iobjcount = count * sizeof(u16);
 			u32 cobjcount = count * sizeof(ContentInfo);
 
