@@ -824,8 +824,8 @@ Result AM9_GetTicketIDList(u32 *count, u32 amount, u64 title_id, bool unknown, u
 
 	ipc_command[0] = IPC_MakeHeader(ID_AM9_GetTicketIDList, 4, 2);
 	ipc_command[1] = amount;
-	ipc_command[2] = HIDWORD(title_id);
-	ipc_command[3] = LODWORD(title_id);
+	ipc_command[2] = LODWORD(title_id);
+	ipc_command[3] = HIDWORD(title_id);
 	ipc_command[4] = (u32)unknown;
 	ipc_command[5] = IPC_Desc_PXIBuffer(amount * sizeof(u64), 0, false);
 	ipc_command[6] = (u32)ticket_ids;
@@ -1177,7 +1177,7 @@ Result AM9_ExportLicenseTicket(u32 *actual_size, u32 data_size, u64 title_id, u6
 	ipc_command[2] = LODWORD(title_id);
 	ipc_command[3] = HIDWORD(title_id);
 	ipc_command[4] = LODWORD(ticket_id);
-	ipc_command[5] = HIDWORD(title_id);
+	ipc_command[5] = HIDWORD(ticket_id);
 	ipc_command[6] = IPC_Desc_PXIBuffer(data_size, 0, false);
 	ipc_command[7] = (u32)data;
 
