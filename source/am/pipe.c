@@ -638,7 +638,12 @@ check_finish_content:
 			break;
 		case InstallState_Finalize:
 			{
-				return 0; // eh
+				if (c->header.MetaSize)
+				{
+					SKIP_PADDING(META_END(c))
+				}
+
+				return 0;
 			}
 			break;
 		}

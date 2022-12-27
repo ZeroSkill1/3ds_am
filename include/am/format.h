@@ -16,6 +16,10 @@
 #define TMD_END(x)     (TMD_START((x)) + (x)->header.TMDSize)
 #define CON_START(x)   ALIGN(TMD_END((x)), 0x40)
 #define CON_END(x)     (CON_START((x)) + (x)->header.ContentSize)
+#define META_START(x)  ALIGN(CON_END(x), 0x40)
+#define META_END(x)    (META_START((x)) + (x)->header.MetaSize)
+
+#define TMD_INFO_RECORDS_COUNT 64
 
 typedef struct __attribute__((packed)) TicketHeader
 {
@@ -43,6 +47,20 @@ typedef struct __attribute__((packed)) TicketHeader
 	u8 Limits[0x40];
 } TicketHeader;
 
+typedef struct __attribute__((packed)) TMDSaveInfo
+{
+	union
+	{
+		u32 CTRSaveSize;
+		u32 SRLPublicSaveDataSize;
+	} Size;
+	u32 SRLPrivateSaveDataSize;
+	u32 Reserved0;
+	u8 SRLFlag;
+	u8 Pad[3];
+	u32 Reserved1[4];
+} TMDSaveInfo;
+
 typedef struct __attribute__((packed)) TMDHeader
 {
 	u8 Signature[0x140];
@@ -55,15 +73,8 @@ typedef struct __attribute__((packed)) TMDHeader
 	u64 TitleID;
 	u32 TitleType;
 	u16 GroupID;
-	union
-	{
-		u32 CTRSaveDataSize;
-		u32 SRLPublicSaveDataSize;
-	} SaveSize;
-	u32 SRLPrivateSaveDataSize;
-	u8 reserved_1[4];
-	u8 SRLFlag;
-	u8 reserved_2[0x31];
+	TMDSaveInfo SaveInfo;
+	u8 reserved_2[0x1E];
 	u32 AccessRights;
 	u16 TitleVersion;
 	u16 ContentCount;
@@ -87,6 +98,12 @@ typedef struct __attribute__((packed)) ContentInfoRecord
 	u16 Count;
 	u8 hash[SIZE_OF_SHA_256_HASH];
 } ContentInfoRecord;
+
+typedef struct __attribute__((packed)) MinimumTMD
+{
+	TMDHeader Header;
+	ContentInfoRecord InfoRecords[TMD_INFO_RECORDS_COUNT];
+} MinimumTMD;
 
 typedef struct __attribute__((packed)) CIAHeader
 {

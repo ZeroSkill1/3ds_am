@@ -5,7 +5,7 @@
 #include <am/demodb.h>
 #include <am/pipe.h>
 
-extern RecursiveLock GLOBAL_CIAReader_Lock;
+extern RecursiveLock GLOBAL_TMDReader_Lock;
 extern Database GLOBAL_DemoDatabase;
 extern AM_Pipe GLOBAL_PipeManager;
 extern Handle GLOBAL_AddressArbiter;

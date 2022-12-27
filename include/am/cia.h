@@ -12,12 +12,12 @@ typedef struct CIAReader
 {
 	CIAHeader header;
 	Handle cia;
-	Handle tmd;
 } CIAReader;
 
 Result CIAReader_Init(CIAReader *rd, Handle cia, bool init_tmd);
 
-Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *size, u16 *indices_count, u32 *align_size);
+Result CIAReader_ReadMinTMD(CIAReader *rd);
+Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *size, u16 *indices_count, u32 *align_size, bool skip_tmd_read);
 Result CIAReader_CalculateRequiredSize(CIAReader *rd, MediaType media_type, u64 *size);
 Result CIAReader_ExtractMetaSMDH(CIAReader *rd, void *smdh);
 Result CIAReader_ExtractDependencyList(CIAReader *rd, void *list);

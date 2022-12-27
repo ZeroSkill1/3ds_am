@@ -281,5 +281,9 @@ Result FSFile_Close(Handle file)
 
 	ipc_command[0] = IPC_MakeHeader(ID_FSFile_Close, 0, 0);
 
-	BASIC_RET(file)
+	CHECK_RET(file)
+
+	svcCloseHandle(file);
+	
+	return res;
 }

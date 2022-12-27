@@ -313,8 +313,8 @@ void AM_Main()
 	// locks pipe manager to one thread at a time
 	RecursiveLock_Init(&GLOBAL_PipeManager.lock);
 
-	// locks cia reader to one thread at a time
-	RecursiveLock_Init(&GLOBAL_CIAReader_Lock);
+	// locks tmd reading for cia ipcs to one thread at a time
+	RecursiveLock_Init(&GLOBAL_TMDReader_Lock);
 
 	// used to do ??? in home menu and nim(?)
 	Err_FailedThrow(svcCreateMutex(&GLOBAL_SystemUpdaterMutex, 0))

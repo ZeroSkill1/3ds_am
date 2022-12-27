@@ -1,7 +1,7 @@
 #include <am/cia.h>
 
 static TMDHeader __attribute__((section(".data.cia_cindex"))) min_tmd;
-RecursiveLock GLOBAL_CIAReader_Lock;
+RecursiveLock GLOBAL_TMDReader_Lock;
 
 static Result CIAReader_ReadEnabledIndices(CIAReader *rd, u16 amount, u16 *indices, u16 *read_indices)
 {
@@ -41,28 +41,39 @@ exit:
 
 Result CIAReader_Init(CIAReader *rd, Handle cia, bool init_tmd)
 {
-	RecursiveLock_Lock(&GLOBAL_CIAReader_Lock);
 	rd->cia = cia;
+	(void)init_tmd;
 
 	Result res;
 	u32 read;
 
-	if (R_FAILED(res = FSFile_Read(&read, rd->cia, 0, sizeof(CIAHeader), &rd->header)) ||
-		(init_tmd && (R_FAILED(res = FSFile_OpenSubFile(rd->cia, &rd->tmd, TMD_START(rd), rd->header.TMDSize)) ||
-		 R_FAILED(res = FSFile_Read(&read, rd->tmd, 0, sizeof(TMDHeader), &min_tmd)))))
+	if (R_FAILED(res = FSFile_Read(&read, rd->cia, 0, sizeof(CIAHeader), &rd->header)))
 		return res;
 
 	return 0;
 }
 
-void CIAReader_Close(CIAReader *rd)
+Result CIAReader_ReadMinTMD(CIAReader *rd)
 {
-	FSFile_Close(rd->tmd);
-	FSFile_Close(rd->cia);
-	RecursiveLock_Unlock(&GLOBAL_CIAReader_Lock);
+	u32 read;
+
+	Result res = FSFile_Read(&read, rd->cia, TMD_START(rd), sizeof(TMDHeader), &min_tmd);
+
+	if (R_FAILED(res))
+		return AM_INTERNAL_RESULT(-3); // result failed
+
+	if (read != sizeof(TMDHeader))
+		return AM_INTERNAL_RESULT(-4); // size mismatch
+
+	return res;
 }
 
-Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *size, u16 *indices_count, u32 *align_size)
+void CIAReader_Close(CIAReader *rd)
+{
+	svcCloseHandle(rd->cia);
+}
+
+Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *size, u16 *indices_count, u32 *align_size, bool skip_tmd_read)
 {
 	if (media_type != MediaType_SD && media_type != MediaType_NAND)
 		return AM_INVALID_ENUM_VALUE;
@@ -79,13 +90,18 @@ Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *si
 
 	// step 1: contents
 
+	RecursiveLock_Lock(&GLOBAL_TMDReader_Lock);
+
+	if (!skip_tmd_read && R_FAILED(res = CIAReader_ReadMinTMD(rd)))
+		return res;
+
 	ContentChunkRecord ccr;
 	u16 tmd_content_count = __builtin_bswap16(min_tmd.ContentCount);
 	u32 read;
 
 	for (u16 i = 0; i < tmd_content_count; i++)
 	{
-		if (R_FAILED(res = FSFile_Read(&read, rd->tmd, sizeof(TMDHeader) + (64 * sizeof(ContentInfoRecord)) + sizeof(ContentChunkRecord) * i, sizeof(ContentChunkRecord), &ccr)))
+		if (R_FAILED(res = FSFile_Read(&read, rd->cia, TMD_START(rd) + sizeof(MinimumTMD) + sizeof(ContentChunkRecord) * i, sizeof(ContentChunkRecord), &ccr)))
 			return res;
 
 		for (u16 j = 0; j < read_indices; j++)
@@ -97,7 +113,7 @@ Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *si
 
 	// step 2: tmd
 
-	u32 tmd_size = sizeof(TMDHeader) + (64 * sizeof(ContentInfoRecord)) + (tmd_content_count * sizeof(ContentChunkRecord));
+	u32 tmd_size = sizeof(MinimumTMD) + (tmd_content_count * sizeof(ContentChunkRecord));
 	_size += ALIGN(tmd_size, align);
 
 	// step 3: save data
@@ -107,11 +123,13 @@ Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *si
 
 	if (TitleID_IsTWL(tmd_tid))
 		save_size =
-			ALIGN(min_tmd.SaveSize.SRLPublicSaveDataSize, align) +
-			ALIGN(min_tmd.SRLPrivateSaveDataSize, align) +
-			(min_tmd.SRLFlag & 0x2 ? align : 0);
+			ALIGN(min_tmd.SaveInfo.Size.SRLPublicSaveDataSize, align) +
+			ALIGN(min_tmd.SaveInfo.SRLPrivateSaveDataSize, align) +
+			(min_tmd.SaveInfo.SRLFlag & 0x2 ? align : 0);
 	else
-		save_size = ALIGN(min_tmd.SaveSize.CTRSaveDataSize, align);
+		save_size = ALIGN(min_tmd.SaveInfo.Size.CTRSaveSize, align);
+
+	RecursiveLock_Unlock(&GLOBAL_TMDReader_Lock);
 
 	if (save_size) // extra align block if save data is there
 		save_size += align;
@@ -134,16 +152,21 @@ Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *si
 Result CIAReader_GetTitleInfo(CIAReader *rd, MediaType media_type, TitleInfo *info)
 {
 	_memset32_aligned(info, 0x00, sizeof(TitleInfo));
-	info->title_id = __builtin_bswap64(min_tmd.TitleID);
-	info->type = __builtin_bswap32(min_tmd.TitleType);
-	info->version = __builtin_bswap16(min_tmd.TitleVersion);
 
-	Result res;
+	RecursiveLock_Lock(&GLOBAL_TMDReader_Lock);
+	Result res = CIAReader_ReadMinTMD(rd);
 
-	if (R_FAILED(res = CIAReader_CalculateTitleSize(rd, media_type, &info->size, NULL, NULL)))
-		return res;
+	if (R_SUCCEEDED(res))
+	{
+		info->title_id = __builtin_bswap64(min_tmd.TitleID);
+		info->type = __builtin_bswap32(min_tmd.TitleType);
+		info->version = __builtin_bswap16(min_tmd.TitleVersion);
 
-	return 0;
+		res = CIAReader_CalculateTitleSize(rd, media_type, &info->size, NULL, NULL, true);
+	}
+	
+	RecursiveLock_Unlock(&GLOBAL_TMDReader_Lock);
+	return res;
 }
 
 Result CIAReader_ExtractMetaSMDH(CIAReader *rd, void *smdh)
@@ -194,7 +217,7 @@ Result CIAReader_CalculateRequiredSize(CIAReader *rd, MediaType media_type, u64 
 	u32 align;
 	Result res;
 
-	if (R_FAILED(res = CIAReader_CalculateTitleSize(rd, media_type, size, &indices_count, &align)))
+	if (R_FAILED(res = CIAReader_CalculateTitleSize(rd, media_type, size, &indices_count, &align, false)))
 		return res;
 
 	// step 1: add another block of align size
