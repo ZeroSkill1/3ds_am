@@ -30,7 +30,7 @@ For example:
 
 # Licensing
 
-The project itself is under the GPLv3 license.
+The project itself is using The Unlicense.
 
 Parts of [libctru](https://github.com/devkitPro/libctru) were taken and modified (function argument order, names, etc.). The license for libctru can be seen here: [LICENSE.libctru.md](/LICENSE.libctru.md)
 
