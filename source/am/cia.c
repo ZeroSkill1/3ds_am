@@ -1,6 +1,6 @@
 #include <am/cia.h>
 
-static TMDHeader __attribute__((section(".data.cia_cindex"))) min_tmd;
+static TMDHeader __attribute__((section(".data.min_tmd"))) min_tmd;
 RecursiveLock GLOBAL_TMDReader_Lock;
 
 static Result CIAReader_ReadEnabledIndices(CIAReader *rd, u16 amount, u16 *indices, u16 *read_indices)
