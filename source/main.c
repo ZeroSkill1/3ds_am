@@ -136,9 +136,7 @@ void tmain(void *arg)
 		else if (index != 0)
 			Err_Panic(OS_EXCEEDED_HANDLES_INDEX)
 
-		DEBUG_PRINTF2("THREAD ", data->thread, " CMD BEGIN ", data->cmd_idx++);
 		data->handle_ipc(data);
-		DEBUG_PRINTF2("THREAD ", data->thread, " CMD END ", data->cmd_idx - 1);
 	}
 
 	Err_FailedThrow(svcCloseHandle(data->session))

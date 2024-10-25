@@ -125,7 +125,7 @@ all	:	$(OUTPUT).cia
 
 $(OUTPUT).cia   :   $(OUTPUT).cxi
 	@makerom -f cia -o $(OUTPUT).cia -ver 10245 -i $(OUTPUT).cxi:0:0 -ignoresign -v
-	@echo built ... $(notdir $@)	
+	@echo built ... $(notdir $@)
 
 $(OUTPUT).cxi	:	$(OUTPUT).elf $(RSF)
 ifeq ($(DEBUG),)
