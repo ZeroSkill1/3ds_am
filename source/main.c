@@ -136,7 +136,9 @@ void tmain(void *arg)
 		else if (index != 0)
 			Err_Panic(OS_EXCEEDED_HANDLES_INDEX)
 
+		DEBUG_PRINTF2("THREAD ", data->thread, " CMD BEGIN ", data->cmd_idx++);
 		data->handle_ipc(data);
+		DEBUG_PRINTF2("THREAD ", data->thread, " CMD END ", data->cmd_idx - 1);
 	}
 
 	Err_FailedThrow(svcCloseHandle(data->session))
@@ -302,7 +304,7 @@ void AM_Main()
 
 	// handles[0] - semaphore
 	Err_FailedThrow(SRV_EnableNotification(&handles[0]));
-	
+
 	// handles[1] through handles[4] - services
 	for (u8 i = 0, j = 1; i < AM_SERVICE_COUNT; i++, j++)
 		Err_FailedThrow(SRV_RegisterService(&handles[j], AM_ServiceNames[i].name, AM_ServiceNames[i].len, AM_MAX_SESSIONS_PER_SERVICE))

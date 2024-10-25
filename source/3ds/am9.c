@@ -666,7 +666,7 @@ Result AM9_ImportCertificate(u32 certsize, void *cert)
 	BASIC_RET(am9_session)
 }
 
-Result AM9_ImportDatabaseInitialized(bool *initialized, MediaType media_type)
+Result AM9_ImportDatabaseInitialized(u8 *initialized, MediaType media_type)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
@@ -675,7 +675,7 @@ Result AM9_ImportDatabaseInitialized(bool *initialized, MediaType media_type)
 
 	CHECK_RET(am9_session);
 
-	if (initialized) *initialized = (bool)ipc_command[2];
+	if (initialized) *initialized = (u8)ipc_command[2];
 
 	return res;
 }
@@ -789,7 +789,7 @@ Result AM9_InitializeTitleDatabase(MediaType media_type, bool overwrite)
 	BASIC_RET(am9_session)
 }
 
-Result AM9_ReloadTitleDatabase(bool *available, MediaType media_type)
+Result AM9_ReloadTitleDatabase(u8 *available, MediaType media_type)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
@@ -798,7 +798,7 @@ Result AM9_ReloadTitleDatabase(bool *available, MediaType media_type)
 
 	CHECK_RET(am9_session)
 
-	if (available) *available = (bool)ipc_command[2];
+	if (available) *available = (u8)ipc_command[2];
 
 	return res;
 }
@@ -994,7 +994,7 @@ Result AM9_GetTWLArchiveResourceInfo(TWLArchiveResourceInfo *info)
 		BASIC_RET(am9_session)
 	}
 
-Result AM9_CheckContentRight(bool *has_right, u64 title_id, u16 content_index)
+Result AM9_CheckContentRight(u8 *has_right, u64 title_id, u16 content_index)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
@@ -1005,7 +1005,7 @@ Result AM9_CheckContentRight(bool *has_right, u64 title_id, u16 content_index)
 
 	CHECK_RET(am9_session)
 
-	if (has_right) *has_right = (bool)ipc_command[2];
+	if (has_right) *has_right = (u8)ipc_command[2];
 
 	return res;
 }
@@ -1279,7 +1279,7 @@ Result AM9_GetItemRights(u32 *outval1, u32 *outval2, u32 data_size, u32 unk_enum
 	return res;
 }
 
-Result AM9_TitleInUse(bool *in_use, MediaType media_type, u64 title_id)
+Result AM9_TitleInUse(u8 *in_use, MediaType media_type, u64 title_id)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
@@ -1290,7 +1290,7 @@ Result AM9_TitleInUse(bool *in_use, MediaType media_type, u64 title_id)
 
 	CHECK_RET(am9_session)
 
-	if (in_use) *in_use = (bool)ipc_command[2];
+	if (in_use) *in_use = (u8)ipc_command[2];
 
 	return res;
 }

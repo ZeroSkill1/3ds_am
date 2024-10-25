@@ -26,8 +26,8 @@
 	if ((x)) \
 		RET_OS_INVALID_IPCARG
 
-#define CHECK_HEADER(x) \
-	if (cmd_header != (x)) \
+#define CHECK_HEADER(...) \
+	if (cmd_header != IPC_MakeHeader(__VA_ARGS__)) \
 	{ \
 		ipc_command[0] = IPC_MakeHeader(0, 1, 0); \
 		ipc_command[1] = OS_INVALID_IPC_HEADER; \

@@ -185,7 +185,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 	{
 	case 0x0001: // get title count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0001, 1, 0))
+			CHECK_HEADER(0x0001, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -201,7 +201,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0002: // get title (id) list
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0002, 2, 2))
+			CHECK_HEADER(0x0002, 2, 2)
 
 			u32 amount = ipc_command[1];
 			u32 objcount = amount * sizeof(u64);
@@ -229,7 +229,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0003: // get title infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0003, 2, 4))
+			CHECK_HEADER(0x0003, 2, 4)
 
 			MediaType media_type = ipc_command[1];
 			u32 count = ipc_command[2];
@@ -260,7 +260,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0004: // delete title (user)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0004, 3, 0))
+			CHECK_HEADER(0x0004, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u64 title_id = *((u64 *)(&ipc_command[2]));
@@ -281,7 +281,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0005: // get title product code
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0005, 3, 0))
+			CHECK_HEADER(0x0005, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u64 title_id = *((u64 *)(&ipc_command[2]));
@@ -298,7 +298,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0006: // get title extdata id
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0006, 3, 0))
+			CHECK_HEADER(0x0006, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u64 title_id = *((u64 *)(&ipc_command[2]));
@@ -315,7 +315,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0007: // delete ticket
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0007, 2, 0))
+			CHECK_HEADER(0x0007, 2, 0)
 
 			u64 title_id = *((u64 *)(&ipc_command[1]));
 
@@ -329,7 +329,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0008: // get ticket count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0008, 0, 0))
+			CHECK_HEADER(0x0008, 0, 0)
 
 			u32 count = 0;
 
@@ -344,7 +344,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0009: // get ticket (title id) list
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0009, 2, 2))
+			CHECK_HEADER(0x0009, 2, 2)
 
 			u32 amount = ipc_command[1];
 			u32 objcount = amount * sizeof(u64);
@@ -372,7 +372,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x000A: // get device id
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x000A, 0, 0))
+			CHECK_HEADER(0x000A, 0, 0)
 
 			u64 id = 0;
 
@@ -387,7 +387,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x000B: // get import title context count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x000B, 1, 0))
+			CHECK_HEADER(0x000B, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -403,7 +403,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x000C: // get import title context list
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x000C, 2, 2))
+			CHECK_HEADER(0x000C, 2, 2)
 
 			u32 amount = ipc_command[1];
 			u32 objcount = amount * sizeof(u64);
@@ -431,7 +431,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x000D: // get import title contexts
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x000D, 2, 4))
+			CHECK_HEADER(0x000D, 2, 4)
 
 			u32 count = ipc_command[1];
 			u32 tobjcount = count * sizeof(u64);
@@ -462,10 +462,10 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x000E: // delete import title context
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x000E, 3, 0))
+			CHECK_HEADER(0x000E, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			Result res = AM9_DeletePendingTitle(media_type, title_id);
 			assertNotAmOrFsWithMedia(res, media_type);
@@ -476,10 +476,10 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x000F: // get import content context count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x000F, 3, 0))
+			CHECK_HEADER(0x000F, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			u32 count = 0;
 
@@ -493,7 +493,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0010: // get import content context list
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0010, 4, 2))
+			CHECK_HEADER(0x0010, 4, 2)
 
 			u32 amount = ipc_command[1];
 			u32 objcount = amount * sizeof(u16);
@@ -522,13 +522,13 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0011: // get import content contexts
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0011, 4, 4))
+			CHECK_HEADER(0x0011, 4, 4)
 
 			u32 count = ipc_command[1];
 			u32 iobjcount = count * sizeof(u16);
 			u32 cobjcount = count * sizeof(ImportContentContext);
 			MediaType media_type = (MediaType)ipc_command[2];
-			u64 title_id = *((u64 *)&ipc_command[3]);
+			u64 title_id = *((u64 *)(&ipc_command[3]));
 
 			CHECK_WRONGARG
 			(
@@ -554,12 +554,12 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0012:
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0012, 4, 2))
+			CHECK_HEADER(0x0012, 4, 2)
 
 			u32 count = ipc_command[1];
 			u32 iobjcount = count * sizeof(u16);
 			MediaType media_type = (MediaType)ipc_command[2];
-			u64 title_id = *((u64 *)&ipc_command[3]);
+			u64 title_id = *((u64 *)(&ipc_command[3]));
 
 			CHECK_WRONGARG
 			(
@@ -580,11 +580,11 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0013: // needs cleanup (import database initialized) -> checks if there are any titles pending finalization in import.db
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0013, 1, 0))
+			CHECK_HEADER(0x0013, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
-			bool initialized = 0;
+			u8 initialized = 0;
 
 			Result res = AM9_ImportDatabaseInitialized(&initialized, media_type);
 			assertNotAmOrFsWithMedia(res, media_type);
@@ -596,7 +596,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0014: // do cleanup -> calls installtitlefinish() on every title id inside import.db where applicable
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0014, 1, 0))
+			CHECK_HEADER(0x0014, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -609,7 +609,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0015: // delete all import title contexts
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0015, 1, 0))
+			CHECK_HEADER(0x0015, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -622,7 +622,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0016: // delete all temporary titles
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0016, 0, 0))
+			CHECK_HEADER(0x0016, 0, 0)
 
 			Result res = AM9_DeleteTemporaryTitles();
 			assertNotAm(res);
@@ -633,7 +633,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0017: // stubbed: import twl backup
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0017, 4, 2))
+			CHECK_HEADER(0x0017, 4, 2)
 
 			u32 bufsize = ipc_command[1];
 
@@ -657,7 +657,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0018: // initialize title database
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0018, 2, 0))
+			CHECK_HEADER(0x0018, 2, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			bool overwrite = (bool)ipc_command[2];
@@ -671,11 +671,11 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0019: // query title database availability
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0019, 1, 0))
+			CHECK_HEADER(0x0019, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
-			bool available = 0;
+			u8 available = 0;
 
 			Result res = AM9_ReloadTitleDatabase(&available, media_type);
 			assertNotAmOrFsWithMedia(res, media_type);
@@ -687,9 +687,9 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x001A: // calculate TWL backup size
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x001A, 3, 0))
+			CHECK_HEADER(0x001A, 3, 0)
 
-			u64 twl_title_id = *((u64 *)&ipc_command[1]);
+			u64 twl_title_id = *((u64 *)(&ipc_command[1]));
 			u8 export_type = (u8)ipc_command[3];
 
 			u32 size = 0;
@@ -703,9 +703,9 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x001B: // export TWL backup
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x001B, 5, 4))
+			CHECK_HEADER(0x001B, 5, 4)
 
-			u64 twl_title_id = *((u64 *)&ipc_command[1]);
+			u64 twl_title_id = *((u64 *)(&ipc_command[1]));
 			u32 path_size = ipc_command[3];
 			u32 working_buffer_size = ipc_command[4];
 			u8 export_type = (u8)ipc_command[5];
@@ -733,8 +733,8 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x001C: // import TWL backup
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x001C, 2, 4))
-			
+			CHECK_HEADER(0x001C, 2, 4)
+
 			u32 working_buffer_size = ipc_command[1];
 			AM_TWLExportType export_type = (AM_TWLExportType)ipc_command[2];
 
@@ -758,7 +758,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x001D: // delete all user TWL titles
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x001D, 0, 0))
+			CHECK_HEADER(0x001D, 0, 0)
 
 			Result res = AM9_DeleteUserDSiWareTitles();
 			assertNotAmOrFsWithMedia(res, MediaType_NAND);
@@ -769,7 +769,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x001E: // read TWL export info (11 content sections)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x001E, 3, 8))
+			CHECK_HEADER(0x001E, 3, 8)
 
 			u32 output_info_size = ipc_command[1];
 			u32 banner_size = ipc_command[2];
@@ -805,7 +805,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x001F: // delete all expired user titles
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x001F, 1, 0))
+			CHECK_HEADER(0x001F, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -818,7 +818,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0020: // get TWL archive resource info
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0020, 0, 0))
+			CHECK_HEADER(0x0020, 0, 0)
 
 			TWLArchiveResourceInfo info;
 
@@ -832,7 +832,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0021: // get personalized ticket info list
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0021, 1, 2))
+			CHECK_HEADER(0x0021, 1, 2)
 
 			u32 amount = ipc_command[1];
 			u32 objcount = amount * sizeof(TicketInfo);
@@ -859,7 +859,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0022: // delete all import title contexts (pending titles) (filtered)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0022, 2, 0))
+			CHECK_HEADER(0x0022, 2, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u8 filter = (u8)ipc_command[2];
@@ -873,7 +873,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0023: // get import title context count (pending titles) (filtered)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0023, 2, 0))
+			CHECK_HEADER(0x0023, 2, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u8 filter = (u8)ipc_command[2];
@@ -890,7 +890,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0024: // get import title context list (pending titles) (filtered)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0024, 3, 2))
+			CHECK_HEADER(0x0024, 3, 2)
 
 			u32 amount = ipc_command[1];
 			u32 objcount = amount * sizeof(u64);
@@ -919,12 +919,12 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0025: // check content rights
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0025, 3, 0))
+			CHECK_HEADER(0x0025, 3, 0)
 
-			u64 title_id = *((u64 *)&ipc_command[1]);
+			u64 title_id = *((u64 *)(&ipc_command[1]));
 			u16 content_index = (u16)ipc_command[3];
 
-			bool has_rights = false;
+			u8 has_rights = 0;
 
 			Result res = AM9_CheckContentRight(&has_rights, title_id, content_index);
 			assertNotAm(res);
@@ -936,7 +936,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0026: // get ticket limit infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0026, 1, 4))
+			CHECK_HEADER(0x0026, 1, 4)
 
 			u32 count = ipc_command[1];
 			u32 tobjcount = count * sizeof(u64);
@@ -966,7 +966,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0027: // get demo launch infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0027, 1, 4))
+			CHECK_HEADER(0x0027, 1, 4)
 
 			u32 count = ipc_command[1];
 			u32 tcount = count * sizeof(u64);
@@ -995,7 +995,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0028: // read TWL export info (12 content sections)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0028, 4, 8))
+			CHECK_HEADER(0x0028, 4, 8)
 
 			u32 output_info_size = ipc_command[1];
 			u32 banner_size = ipc_command[2];
@@ -1032,7 +1032,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x0029: // delete user programs (atomically?)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0029, 2, 2))
+			CHECK_HEADER(0x0029, 2, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u32 count = ipc_command[2];
@@ -1067,10 +1067,10 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x002A: // get current existing content infos count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x002A, 3, 0))
+			CHECK_HEADER(0x002A, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			u32 count = 0;
 
@@ -1084,12 +1084,12 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x002B: // get current existing content infos list
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x002B, 5, 2))
+			CHECK_HEADER(0x002B, 5, 2)
 
 			u32 amount = ipc_command[1];
 			u32 objcount = sizeof(ContentInfo) * amount;
 			MediaType media_type = (MediaType)ipc_command[2];
-			u64 title_id = *((u64 *)&ipc_command[3]);
+			u64 title_id = *((u64 *)(&ipc_command[3]));
 			u32 offset = ipc_command[5];
 
 			CHECK_WRONGARG
@@ -1114,7 +1114,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x002C: // get title infos (ignore platform ctr/ktr)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x002C, 2, 4))
+			CHECK_HEADER(0x002C, 2, 4)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u32 count = ipc_command[2];
@@ -1162,13 +1162,13 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		break;
 	case 0x002D: // get content rights (ignore platform ctr/ktr)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x002D, 3, 0))
+			CHECK_HEADER(0x002D, 3, 0)
 
-			u64 title_id = *((u64 *)&ipc_command[1]);
+			u64 title_id = *((u64 *)(&ipc_command[1]));
 			u16 content_index = (u16)ipc_command[3];
 
 			Result res = 0;
-			bool has_right = false;
+			u8 has_right = 0;
 
 			if (TitleID_IsTWL(title_id))
 				res = AM9_CheckContentRight(&has_right, title_id, content_index);
@@ -1199,9 +1199,9 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 	{
 	case 0x0401: // install FIRM
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0401, 2, 0))
+			CHECK_HEADER(0x0401, 2, 0)
 
-			u64 title_id = *((u64 *)&ipc_command[1]);
+			u64 title_id = *((u64 *)(&ipc_command[1]));
 
 			Result res = AM9_InstallFIRM(title_id);
 			assertNotAm(res);
@@ -1212,7 +1212,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0402: // begin user CIA install
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0402, 1, 0))
+			CHECK_HEADER(0x0402, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -1229,7 +1229,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0403: // begin user CIA install in tempdb
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0403, 0, 0))
+			CHECK_HEADER(0x0403, 0, 0)
 
 			Handle import = 0;
 
@@ -1244,7 +1244,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0404: // cancel CIA install
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0404, 0, 2))
+			CHECK_HEADER(0x0404, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -1274,7 +1274,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0405: // finish CIA install
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0405, 0, 2))
+			CHECK_HEADER(0x0405, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -1307,7 +1307,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0406: // finish CIA install without commit
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0406, 0, 2))
+			CHECK_HEADER(0x0406, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -1326,7 +1326,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0407: // install titles commit
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0407, 3, 2))
+			CHECK_HEADER(0x0407, 3, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u32 count = ipc_command[2];
@@ -1352,7 +1352,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0408: // get title info from cia
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0408, 1, 2))
+			CHECK_HEADER(0x0408, 1, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -1381,7 +1381,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0409: // extract SMDH from cia meta region
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0409, 0, 4))
+			CHECK_HEADER(0x0409, 0, 4)
 
 			CHECK_WRONGARG
 			(
@@ -1414,7 +1414,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x040A: // extract title id dependency list from cia meta region
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x040A, 0, 2))
+			CHECK_HEADER(0x040A, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifySharedHandles(ipc_command[1], 1))
 
@@ -1441,7 +1441,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x040B: // get cia meta start offset / get cia transfer size
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x040B, 0, 2))
+			CHECK_HEADER(0x040B, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifySharedHandles(ipc_command[1], 1))
 
@@ -1471,7 +1471,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x040C: // get cia meta core version
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x040C, 0, 2))
+			CHECK_HEADER(0x040C, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifySharedHandles(ipc_command[1], 1))
 
@@ -1498,7 +1498,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x040D: // get cia required installation space
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x040D, 1, 2))
+			CHECK_HEADER(0x040D, 1, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -1528,7 +1528,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x040E: // install titles commit (with optional firm upgrade)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x040E, 3, 2))
+			CHECK_HEADER(0x040E, 3, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u32 count = ipc_command[2];
@@ -1554,7 +1554,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x040F: // update firmware (auto)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x040F, 0, 0))
+			CHECK_HEADER(0x040F, 0, 0)
 
 			u64 firm_tid = 0;
 
@@ -1572,10 +1572,10 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0410: // delete title
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0410, 3, 0))
+			CHECK_HEADER(0x0410, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			Result res = AM9_DeleteTitle(media_type, title_id);
 			assertNotAmOrFsWithMedia(res, media_type);
@@ -1586,7 +1586,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0411: // get TWL title/contents list for reboot
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0411, 1, 4))
+			CHECK_HEADER(0x0411, 1, 4)
 
 			u32 amount = ipc_command[1];
 			u32 tobjcount = amount * sizeof(u64);
@@ -1619,7 +1619,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0412: // get system updater mutex
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0412, 0, 0))
+			CHECK_HEADER(0x0412, 0, 0)
 
 			ipc_command[0] = IPC_MakeHeader(0x0412, 1, 2);
 			ipc_command[1] = 0;
@@ -1629,7 +1629,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0413: // get cia meta size
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0413, 0, 2))
+			CHECK_HEADER(0x0413, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifySharedHandles(ipc_command[1], 1))
 
@@ -1653,7 +1653,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0414: // get cia meta
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0414, 1, 2))
+			CHECK_HEADER(0x0414, 1, 2)
 
 			u32 size = ipc_command[1];
 
@@ -1678,7 +1678,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 				res = CIAReader_ExtractMeta(&reader, size, meta, &read);
 				assertNotAmOrFs(res);
 			}
-			
+
 			CIAReader_Close(&reader);
 
 			ipc_command[0] = IPC_MakeHeader(0x0414, 2, 2);
@@ -1690,9 +1690,9 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0415: // check demo launch right
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0415, 2, 0))
+			CHECK_HEADER(0x0415, 2, 0)
 
-			u64 title_id = *((u64 *)&ipc_command[1]);
+			u64 title_id = *((u64 *)(&ipc_command[1]));
 
 			bool has_right = AM_DemoDatabase_HasDemoLaunchRight(&GLOBAL_DemoDatabase, title_id);
 
@@ -1703,10 +1703,10 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0416: // get internal title location info (what?)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0416, 3, 0))
+			CHECK_HEADER(0x0416, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			InternalTitleLocationInfo info;
 
@@ -1720,10 +1720,10 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0417: // migrate AGB to SAV
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0417, 3, 0))
+			CHECK_HEADER(0x0417, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			Result res = AM9_MigrateAGBToSAV(media_type, title_id);
 			// no assert?
@@ -1733,8 +1733,8 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		}
 		break;
 	case 0x0418: // begin user CIA install (overwrite)
-		{ 
-			CHECK_HEADER(IPC_MakeHeader(0x0418, 1, 0))
+		{
+			CHECK_HEADER(0x0418, 1, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 
@@ -1751,7 +1751,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 		break;
 	case 0x0419: // begin system CIA install
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0419, 0, 0))
+			CHECK_HEADER(0x0419, 0, 0)
 
 			Handle import = 0;
 
@@ -1776,10 +1776,10 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 	{
 	case 0x1001: // get dlc content info count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1001, 3, 0))
+			CHECK_HEADER(0x1001, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			Result res = 0;
 
@@ -1797,10 +1797,10 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x1002: // find dlc content infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1002, 4, 4))
+			CHECK_HEADER(0x1002, 4, 4)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 			u32 count = ipc_command[4];
 			u32 iobjcount = count * sizeof(u16);
 			u32 cobjcount = count * sizeof(ContentInfo);
@@ -1816,7 +1816,7 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 			u16 *indices = (u16 *)ipc_command[6];
 			ContentInfo *infos = (ContentInfo *)ipc_command[8];
 
-			Result res = 0; 
+			Result res = 0;
 
 			if (!TitleID_IsDLC(title_id))
 				res = AM_INVALID_TITLE_ID_HIGH;
@@ -1836,12 +1836,12 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x1003: // list dlc content infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1003, 5, 2))
+			CHECK_HEADER(0x1003, 5, 2)
 
 			u32 amount = ipc_command[1];
 			u32 cobjcount = amount * sizeof(ContentInfo);
 			MediaType media_type = (MediaType)ipc_command[2];
-			u64 title_id = *((u64 *)&ipc_command[3]);
+			u64 title_id = *((u64 *)(&ipc_command[3]));
 			u32 offset = ipc_command[5];
 
 			CHECK_WRONGARG
@@ -1860,7 +1860,7 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 				AM_INVALID_TITLE_ID_HIGH;
 			else
 			{
-				res = AM9_ListContentInfos(&count, amount, media_type, title_id, offset, infos);				;
+				res = AM9_ListContentInfos(&count, amount, media_type, title_id, offset, infos);
 				assertNotAmOrFsWithMedia(res, media_type);
 			}
 
@@ -1873,10 +1873,10 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x1004: // delete dlc contents
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1004, 4, 2))
+			CHECK_HEADER(0x1004, 4, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 			u32 count = ipc_command[4];
 			u32 iobjcount = count * sizeof(u16);
 
@@ -1906,7 +1906,7 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x1005: // get dlc title infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1005, 2, 4))
+			CHECK_HEADER(0x1005, 2, 4)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u32 count = ipc_command[2];
@@ -1947,9 +1947,9 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x1006: // get dlc or license ticket count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1006, 2, 0))
+			CHECK_HEADER(0x1006, 2, 0)
 
-			u64 title_id = *((u64 *)&ipc_command[1]);
+			u64 title_id = *((u64 *)(&ipc_command[1]));
 
 			Result res = 0;
 
@@ -1970,11 +1970,11 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x1007: // list dlc or license ticket infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1007, 4, 2))
+			CHECK_HEADER(0x1007, 4, 2)
 
 			u32 amount = ipc_command[1];
 			u32 iobjcount = amount * sizeof(TicketInfo);
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 			u32 offset = ipc_command[4];
 
 			CHECK_WRONGARG
@@ -2001,17 +2001,17 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 			ipc_command[1] = res;
 			ipc_command[2] = count;
 			ipc_command[3] = IPC_Desc_Buffer(iobjcount, IPC_BUFFER_W);
-			ipc_command[4]  = (u32)infos;
+			ipc_command[4] = (u32)infos;
 		}
 		break;
 	case 0x1008: // get dlc or license item rights
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1008, 7, 2))
+			CHECK_HEADER(0x1008, 7, 2)
 
 			u32 size = ipc_command[1];
 			u8 enum_val = (u8)ipc_command[2];
-			u64 ticket_tid = *((u64 *)&ipc_command[3]);
-			u64 ticket_id = *((u64 *)&ipc_command[5]);
+			u64 ticket_tid = *((u64 *)(&ipc_command[3]));
+			u64 ticket_id = *((u64 *)(&ipc_command[5]));
 			u32 offset = ipc_command[7];
 
 			CHECK_WRONGARG
@@ -2044,14 +2044,14 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x1009: // dlc title is in use
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x1009, 3, 0))
+			CHECK_HEADER(0x1009, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			Result res = 0;
 
-			bool in_use = false;
+			u8 in_use = 0;
 
 			if (!TitleID_IsDLC(title_id))
 				res = AM_INVALID_TITLE_ID_HIGH;
@@ -2066,11 +2066,11 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 			ipc_command[2] = (u32)in_use;
 		}
 		break;
-	case 0x100A: // reloaded SD title database
+	case 0x100A: // reload SD title database
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x100A, 0, 0))
+			CHECK_HEADER(0x100A, 0, 0)
 
-			bool available = false;
+			u8 available = 0;
 
 			Result res = AM9_ReloadTitleDatabase(&available, MediaType_SD);
 			assertNotAmOrFsWithMedia(res, MediaType_SD);
@@ -2082,10 +2082,10 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x100B: // get existing dlc content infos count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x100B, 3, 0))
+			CHECK_HEADER(0x100B, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			Result res = 0;
 
@@ -2103,12 +2103,12 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x100C: // list existing dlc content infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x100C, 5, 2))
+			CHECK_HEADER(0x100C, 5, 2)
 
 			u32 amount = ipc_command[1];
 			u32 cobjcount = amount * sizeof(ContentInfo);
 			MediaType media_type = (MediaType)ipc_command[2];
-			u64 title_id = *((u64 *)&ipc_command[3]);
+			u64 title_id = *((u64 *)(&ipc_command[3]));
 			u32 offset = ipc_command[5];
 
 			CHECK_WRONGARG
@@ -2140,7 +2140,7 @@ static void AM_HandleIPC_Range0x1001_0x100D()
 		break;
 	case 0x100D: // list update (patch) title infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x100D, 2, 4))
+			CHECK_HEADER(0x100D, 2, 4)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u32 count = ipc_command[2];
@@ -2193,7 +2193,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 	{
 	case 0x0801: // install ticket begin
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0801, 0, 0))
+			CHECK_HEADER(0x0801, 0, 0)
 
 			Result res = AM9_InstallTicketBegin();
 			assertNotAm(res);
@@ -2214,7 +2214,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0802: // install ticket cancel
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0802, 0, 2))
+			CHECK_HEADER(0x0802, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -2231,7 +2231,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0803: // install ticket finish
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0803, 0, 2))
+			CHECK_HEADER(0x0803, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -2248,10 +2248,10 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0804: // install title begin
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0804, 4, 0))
+			CHECK_HEADER(0x0804, 4, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 			u8 db_type = (u8)ipc_command[4];
 
 			Result res = 0;
@@ -2276,7 +2276,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0805: // install title pause
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0805, 0, 0))
+			CHECK_HEADER(0x0805, 0, 0)
 
 			Result res = 0;
 
@@ -2298,10 +2298,10 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0806: // install title resume
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0806, 3, 0))
+			CHECK_HEADER(0x0806, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			Result res = 0;
 
@@ -2325,7 +2325,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0807: // install title cancel
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0807, 0, 0))
+			CHECK_HEADER(0x0807, 0, 0)
 
 			Result res = 0;
 
@@ -2347,7 +2347,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0808: // install title finish
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0808, 0, 0))
+			CHECK_HEADER(0x0808, 0, 0)
 
 			Result res = 0;
 
@@ -2367,7 +2367,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0809: // install titles commit
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0809, 3, 2))
+			CHECK_HEADER(0x0809, 3, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u32 count = ipc_command[2];
@@ -2391,7 +2391,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x080A: // install TMD begin
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x080A, 0, 0))
+			CHECK_HEADER(0x080A, 0, 0)
 
 			Result res = 0;
 
@@ -2419,7 +2419,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x080B: // install TMD cancel
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x080B, 0, 2))
+			CHECK_HEADER(0x080B, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -2443,7 +2443,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x080C: // install TMD finish
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x080C, 1, 2))
+			CHECK_HEADER(0x080C, 1, 2)
 
 			bool unk = (bool)ipc_command[1];
 
@@ -2469,7 +2469,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x080D: // create import content contexts
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x080D, 1, 2))
+			CHECK_HEADER(0x080D, 1, 2)
 
 			u32 count = ipc_command[1];
 			u32 iobjcount = count * sizeof(u16);
@@ -2496,7 +2496,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x080E: // install content begin
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x080E, 1, 0))
+			CHECK_HEADER(0x080E, 1, 0)
 
 			u16 content_index = (u16)ipc_command[1];
 
@@ -2526,7 +2526,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x080F: // install content pause
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x080F, 0, 2))
+			CHECK_HEADER(0x080F, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -2550,7 +2550,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x810: // install content resume
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0810, 1, 0))
+			CHECK_HEADER(0x0810, 1, 0)
 
 			u16 content_index = (u16)ipc_command[1];
 
@@ -2583,7 +2583,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0811: // install content cancel
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0811, 0, 2))
+			CHECK_HEADER(0x0811, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -2607,7 +2607,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0812: // install content finish
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0812, 0, 2))
+			CHECK_HEADER(0x0812, 0, 2)
 
 			CHECK_WRONGARG(!IPC_VerifyMoveHandles(ipc_command[1], 1))
 
@@ -2631,7 +2631,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0813: // get current import content contexts count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0813, 0, 0))
+			CHECK_HEADER(0x0813, 0, 0)
 
 			Result res = 0;
 
@@ -2652,7 +2652,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0814: // get current import contexts list
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0814, 1, 2))
+			CHECK_HEADER(0x0814, 1, 2)
 
 			u32 amount = ipc_command[1];
 			u32 tobjcount = amount * sizeof(u16);
@@ -2686,7 +2686,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0815: // get current import content contexts
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0815, 1, 4))
+			CHECK_HEADER(0x0815, 1, 4)
 
 			u32 count = ipc_command[1];
 			u32 tobjcount = count * sizeof(u16);
@@ -2723,11 +2723,11 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0816: // sign
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0816, 5, 6))
+			CHECK_HEADER(0x0816, 5, 6)
 
 			u32 signature_output_size = ipc_command[1];
 			u32 certificate_output_size = ipc_command[2];
-			u64 title_id = *((u64 *)&ipc_command[3]);
+			u64 title_id = *((u64 *)(&ipc_command[3]));
 			u32 input_size = ipc_command[5];
 
 			CHECK_WRONGARG
@@ -2762,9 +2762,9 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0817: // verify (stubbed)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0817, 5, 6))
+			CHECK_HEADER(0x0817, 5, 6)
 
-			u64 unk64 = *((u64 *)&ipc_command[1]);
+			u64 unk64 = *((u64 *)(&ipc_command[1]));
 			u32 size0 = ipc_command[3], size1 = ipc_command[4], size2 = ipc_command[5];
 
 			CHECK_WRONGARG
@@ -2795,7 +2795,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0818: // get device (CT) certificate
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0818, 1, 2))
+			CHECK_HEADER(0x0818, 1, 2)
 
 			u32 size = ipc_command[1];
 
@@ -2821,7 +2821,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0819: // import certificates (why are these ipcs so loooong)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0819, 4, 8))
+			CHECK_HEADER(0x0819, 4, 8)
 
 			u32 c0_size = ipc_command[1];
 			u32 c1_size = ipc_command[2];
@@ -2862,7 +2862,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x081A: // import certificate
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x081A, 1, 2))
+			CHECK_HEADER(0x081A, 1, 2)
 
 			u32 size = ipc_command[1];
 
@@ -2885,7 +2885,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x081B: // install titles commit (with optional firm upgrade)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x081B, 3, 2))
+			CHECK_HEADER(0x081B, 3, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
 			u32 count = ipc_command[2];
@@ -2911,10 +2911,10 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x081C: // delete ticket id
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x081C, 4, 0))
+			CHECK_HEADER(0x081C, 4, 0)
 
-			u64 title_id = *((u64 *)&ipc_command[1]);
-			u64 ticket_id = *((u64 *)&ipc_command[3]);
+			u64 title_id = *((u64 *)(&ipc_command[1]));
+			u64 ticket_id = *((u64 *)(&ipc_command[3]));
 
 			Result res = AM9_DeleteTicketID(title_id, ticket_id);
 			assertNotAm(res);
@@ -2925,9 +2925,9 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x081D: // get ticket id count for title (using title id)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x081D, 2, 0))
+			CHECK_HEADER(0x081D, 2, 0)
 
-			u64 title_id = *((u64 *)&ipc_command[1]);
+			u64 title_id = *((u64 *)(&ipc_command[1]));
 
 			u32 count = 0;
 
@@ -2941,11 +2941,11 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x081E: // get ticket id list
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x081E, 4, 2))
+			CHECK_HEADER(0x081E, 4, 2)
 
 			u32 amount = ipc_command[1];
 			u32 tobjcount = amount * sizeof(u64);
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 			bool unk = (bool)ipc_command[4];
 
 			CHECK_WRONGARG
@@ -2970,9 +2970,9 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x081F: // get ticket count for title (using title id)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x081F, 2, 0))
+			CHECK_HEADER(0x081F, 2, 0)
 
-			u64 title_id = *((u64 *)&ipc_command[1]);
+			u64 title_id = *((u64 *)(&ipc_command[1]));
 
 			u32 count = 0;
 
@@ -2986,11 +2986,11 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0820: // list ticket infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0820, 4, 2))
+			CHECK_HEADER(0x0820, 4, 2)
 
 			u32 amount = ipc_command[1];
 			u32 iobjcount = amount * sizeof(TicketInfo);
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 			u32 offset = ipc_command[4];
 
 			CHECK_WRONGARG
@@ -3015,11 +3015,11 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0821: // export license ticket
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0821, 5, 2))
+			CHECK_HEADER(0x0821, 5, 2)
 
 			u32 size = ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
-			u64 ticket_id = *((u64 *)&ipc_command[4]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
+			u64 ticket_id = *((u64 *)(&ipc_command[4]));
 
 			CHECK_WRONGARG
 			(
@@ -3043,7 +3043,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0822: // get current content info count
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0822, 0, 0))
+			CHECK_HEADER(0x0822, 0, 0)
 
 			u32 count = 0;
 
@@ -3057,7 +3057,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0823: // find current content infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0823, 1, 4))
+			CHECK_HEADER(0x0823, 1, 4)
 
 			u32 count = ipc_command[1];
 			u32 tobjcount = count * sizeof(u16);
@@ -3087,7 +3087,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0824: // list current content infos
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0824, 2, 2))
+			CHECK_HEADER(0x0824, 2, 2)
 
 			u32 amount = ipc_command[1];
 			u32 cobjcount = amount * sizeof(ContentInfo);
@@ -3115,10 +3115,10 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0825: // calculate optional DLC contents required size
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0825, 4, 2))
+			CHECK_HEADER(0x0825, 4, 2)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 			u32 count = ipc_command[4];
 			u32 iobjcount = count * sizeof(u16);
 
@@ -3145,7 +3145,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0826: // update import content contexts
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0826, 2, 2))
+			CHECK_HEADER(0x0826, 2, 2)
 
 			u32 count = ipc_command[1];
 			u32 iobjcount = count * sizeof(u16);
@@ -3168,7 +3168,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0827: // clear demo database (reset header)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0827, 0, 0))
+			CHECK_HEADER(0x0827, 0, 0)
 
 			AM_DemoDatabase_InitializeHeader(&GLOBAL_DemoDatabase);
 
@@ -3178,10 +3178,10 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0828: // install title begin (overwrite)
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0828, 3, 0))
+			CHECK_HEADER(0x0828, 3, 0)
 
 			MediaType media_type = (MediaType)ipc_command[1];
-			u64 title_id = *((u64 *)&ipc_command[2]);
+			u64 title_id = *((u64 *)(&ipc_command[2]));
 
 			Result res = 0;
 
@@ -3205,12 +3205,12 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		break;
 	case 0x0829: // export ticket wrapped
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0829, 6, 4))
+			CHECK_HEADER(0x0829, 6, 4)
 
 			u32 crypted_ticket_size = ipc_command[1];
 			u32 crypted_keyiv_size = ipc_command[2];
-			u64 title_id = *((u64 *)&ipc_command[3]);
-			u64 ticket_id = *((u64 *)&ipc_command[5]);
+			u64 title_id = *((u64 *)(&ipc_command[3]));
+			u64 ticket_id = *((u64 *)(&ipc_command[5]));
 
 			CHECK_WRONGARG
 			(

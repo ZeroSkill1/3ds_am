@@ -195,9 +195,9 @@ typedef struct __attribute__((aligned(4))) ImportTitleContext
 {
 	u64 title_id;
 	u16 version;
-	u16 state; // what
-	u32 type; // so why is this a u32 again
-	u64 size; // ???
+	u16 state;
+	u32 type;
+	u64 size;
 } ImportTitleContext;
 
 typedef struct __attribute__((aligned(4))) ImportContentContext
@@ -205,8 +205,8 @@ typedef struct __attribute__((aligned(4))) ImportContentContext
 	u32 content_id;
 	u16 content_index;
 	u16 state;
-	u64 size; // why is this a u64 if the 3ds only supports FAT32?
-	u64 current_install_offset; // same for this
+	u64 size;
+	u64 current_install_offset;
 } ImportContentContext;
 
 typedef struct __attribute__((aligned(4))) InternalTitleLocationInfo
@@ -268,7 +268,7 @@ Result AM9_GetDeviceCertificate(u32 *retval, u32 out_data_size, void *out_data);
 Result AM9_GetDeviceID(u64 *id);
 Result AM9_ImportCertificates(u32 certsize_1, u32 certsize_2, u32 certsize_3, u32 certsize_4, void *cert_1, void *cert_2, void *cert_3, void *cert_4);
 Result AM9_ImportCertificate(u32 certsize, void *cert);
-Result AM9_ImportDatabaseInitialized(bool *initialized, MediaType media_type);
+Result AM9_ImportDatabaseInitialized(u8 *initialized, MediaType media_type);
 Result AM9_Cleanup(MediaType media_type);
 Result AM9_DeleteTemporaryTitles();
 Result AM9_InstallTitlesFinishAndInstallFIRM(MediaType media_type, u32 count, u64 firm_title_id, u8 db_type, u64 *title_ids);
@@ -276,7 +276,7 @@ Result AM9_DSiWareExportVerifyFooter(u64 twl_title_id, u32 data_size, u32 ecdsa_
 Result AM9_DSiWareExportDecryptData(u32 input_size, u32 output_size, u32 iv_size, u8 dsiware_export_section_index, void *input, void *input_iv, void *output, void *output_iv);
 Result AM9_DSiWareWriteSaveData(u64 twl_title_id, u32 data_size, u32 nand_file_offset, u8 section_type, u8 operation, void *data);
 Result AM9_InitializeTitleDatabase(MediaType media_type, bool overwrite);
-Result AM9_ReloadTitleDatabase(bool *available, MediaType media_type);
+Result AM9_ReloadTitleDatabase(u8 *available, MediaType media_type);
 Result AM9_GetTicketIDCount(u32 *count, u64 title_id);
 Result AM9_GetTicketIDList(u32 *count, u32 amount, u64 title_id, bool unknown, u64 *ticket_ids);
 Result AM9_DeleteTicketID(u64 title_id, u64 ticket_id);
@@ -290,7 +290,7 @@ Result AM9_DeleteExpiredUserTitles(MediaType media_type);
 Result AM9_DSiWareExportVerifyMovableSedHash(u32 buf0_size, u32 buf1_size, void *buf0, void *buf1);
 Result AM9_GetTWLArchiveResourceInfo(TWLArchiveResourceInfo *info);
 Result AM9_DSiWareExportValidateSectionMAC(u32 mac_size, u32 hash_size, u8 dsiware_export_section_index, void *mac, void *hash);
-Result AM9_CheckContentRight(bool *has_right, u64 title_id, u16 content_index);
+Result AM9_CheckContentRight(u8 *has_right, u64 title_id, u16 content_index);
 Result AM9_CreateImportContentContexts(u32 count, u16 *indices);
 Result AM9_GetContentInfoCount(u32 *count, MediaType media_type, u64 title_id);
 Result AM9_FindContentInfos(MediaType media_type, u64 title_id, u32 count, u16 *indices, ContentInfo *infos);
@@ -308,7 +308,7 @@ Result AM9_GetInternalTitleLocationInfo(InternalTitleLocationInfo *info, MediaTy
 Result AM9_MigrateAGBToSAV(MediaType media_type, u64 title_id);
 Result AM9_DeleteTitles(MediaType media_type, u32 count, u64 *title_ids);
 Result AM9_GetItemRights(u32 *outval1, u32 *outval2, u32 data_size, u32 unk_enumval, u64 title_id, u64 ticket_id, u32 offset, void *data);
-Result AM9_TitleInUse(bool *in_use, MediaType media_type, u64 title_id);
+Result AM9_TitleInUse(u8 *in_use, MediaType media_type, u64 title_id);
 Result AM9_GetInstalledContentInfoCount(u32 *count, MediaType media_type, u64 title_id);
 Result AM9_ListInstalledContentInfos(u32 *count, u32 amount, MediaType media_type, u64 title_id, u32 offset, ContentInfo *infos);
 Result AM9_InstallTitleBeginOverwrite(MediaType media_type, u64 title_id);

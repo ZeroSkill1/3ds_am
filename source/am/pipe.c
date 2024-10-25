@@ -373,7 +373,7 @@ static Result AM_Pipe_CIA_Write(void *data, u64 offset, u32 size, u32 flags, voi
 				u32 remaining_size = TMD_END(c) - c->offset;
 				bool last_write = size >= remaining_size;
 				u32 write = last_write ? remaining_size : MIN(MIN(remaining_size, size), 0x3000); // stock am never exceeds 0x3000
-				
+
 				if (!last_write)
 				{
 					u8 diff = write % 16; // TMD must align, since it's written to sd crypted
@@ -571,7 +571,7 @@ static Result AM_Pipe_CIA_Write(void *data, u64 offset, u32 size, u32 flags, voi
 					u32 remaining_size = c->cur_content_end_offs - c->offset;
 					bool last_write = size >= remaining_size;
 					u32 write = last_write ? remaining_size : MIN(remaining_size, size); // stock am never exceeds 0x3000
-					
+
 					if (!last_write)
 					{
 						u8 diff = write % 16; // content must align, since it's written to sd crypted
@@ -661,7 +661,7 @@ err_exit:
 	c->invalidated = true;
 
 	return res;
-	
+
 	#undef TMD_HDR
 	#undef TIK_HDR
 	#undef BASIC_COPY
@@ -888,7 +888,7 @@ void AM_Pipe_HandleIPC()
 	case 0x080B: // get priority
 	case 0x080C: // open link file
 		{
-			CHECK_HEADER(IPC_MakeHeader(cmd_id, 0, 0))
+			CHECK_HEADER(cmd_id, 0, 0)
 
 			ipc_command[0] = IPC_MakeHeader(cmd_id, 1, 0);
 			ipc_command[1] = AM_PIPE_UNSUPPORTED_ACTION;
@@ -903,7 +903,7 @@ void AM_Pipe_HandleIPC()
 		break;
 	case 0x0803: // write
 		{
-			CHECK_HEADER(IPC_MakeHeader(0x0803, 4, 2))
+			CHECK_HEADER(0x0803, 4, 2)
 
 			u32 written;
 			u64 offset = *((u64 *)&ipc_command[1]);
@@ -917,7 +917,7 @@ void AM_Pipe_HandleIPC()
 			)
 
 			void *buf = (void *)ipc_command[6];
-			
+
 			Result res = GLOBAL_PipeManager.write(GLOBAL_PipeManager.data, offset, size, flags, buf, &written);
 
 			ipc_command[0] = IPC_MakeHeader(0x0803, 2, 2);

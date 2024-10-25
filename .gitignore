@@ -5,11 +5,16 @@ compile_flags.txt
 
 privatesav-dsiware-exports/
 dsiware-exports/
-build/
+build/*
+testcia/*
 
 0004*
 
 *.cxi
+*.lst
+*.map
+*.idb
+*.cia.*
 *.bin
 *.elf
 *.zip

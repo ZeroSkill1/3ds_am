@@ -31,11 +31,7 @@ enum
 Result syncInit();
 void syncExit();
 
-static inline void __dmb(void)
-{
-	__asm__ __volatile__("mcr p15, 0, %[val], c7, c10, 5" :: [val] "r" (0) : "memory");
-}
-
+extern void __dmb(void);
 
 static inline void __clrex(void)
 {
