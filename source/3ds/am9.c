@@ -3,6 +3,7 @@
 Handle am9_session;
 bool am9_init;
 
+#ifndef REPLACE_AM
 static inline Result svcControlServiceSteal(Handle* outHandle, const char* name) {
 	register int _op __asm__("r0") = 0;
 	register Handle* _outHandle __asm__("r1") = outHandle;
@@ -14,6 +15,7 @@ static inline Result svcControlServiceSteal(Handle* outHandle, const char* name)
 
 	return res;
 }
+#endif
 
 Result am9Init()
 {
@@ -97,7 +99,7 @@ Result AM9_GetTitleInfos(MediaType media_type, u32 count, u64 *title_ids, TitleI
 Result AM9_DeleteTitle(MediaType media_type, u64 title_id)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
-	
+
 	ipc_command[0] = IPC_MakeHeader(ID_AM9_DeleteTitle, 3, 0);
 	ipc_command[1] = (u32)media_type;
 	ipc_command[2] = LODWORD(title_id);
@@ -321,7 +323,7 @@ Result AM9_InstallContentBegin(u16 content_index)
 
 	ipc_command[0] = IPC_MakeHeader(ID_AM9_InstallContentBegin, 1, 0);
 	ipc_command[1] = (u32)content_index;
-	
+
 	BASIC_RET(am9_session)
 }
 

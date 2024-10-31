@@ -1445,7 +1445,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			CHECK_WRONGARG(!IPC_VerifySharedHandles(ipc_command[1], 1))
 
-			Handle cia = ipc_command[1];
+			Handle cia = ipc_command[2];
 
 			union
 			{
@@ -1475,7 +1475,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			CHECK_WRONGARG(!IPC_VerifySharedHandles(ipc_command[1], 1))
 
-			Handle cia = ipc_command[1];
+			Handle cia = ipc_command[2];
 
 			CIAReader reader;
 			u32 core_version = 0;

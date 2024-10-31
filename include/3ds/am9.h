@@ -34,11 +34,11 @@ enum
 
 enum
 {
-  ContentTypeFlag_Encrypted = 0x0001,
-  ContentTypeFlag_Disk      = 0x0002,
-  ContentTypeFlag_CFM       = 0x0004,
-  ContentTypeFlag_Optional  = 0x4000,
-  ContentTypeFlag_Shared    = 0x8000,
+	ContentTypeFlag_Encrypted = 0x0001,
+	ContentTypeFlag_Disk      = 0x0002,
+	ContentTypeFlag_CFM       = 0x0004,
+	ContentTypeFlag_Optional  = 0x4000,
+	ContentTypeFlag_Shared    = 0x8000,
 };
 
 enum
@@ -159,14 +159,13 @@ typedef struct __attribute__((aligned(4))) ContentInfo
 	u16 index;
 	u16 type;
 	u32 id;
-	u64 size; // same here, why is this a u64
+	u64 size;
 	u8 flags; ///< BIT(0): downloaded, BIT(1): owned
 	u8 pad[0x7];
 } ContentInfo;
 
 typedef struct __attribute__((aligned(8))) TWLArchiveResourceInfo
 {
-	// this just doesn't make sense
 	u64 total_capacity;
 	u64 total_free_space;
 	u64 titles_capacity;
