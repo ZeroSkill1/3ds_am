@@ -1,6 +1,6 @@
 #include <am/demodb.h>
 
-__attribute__((section(".data.demodb"), aligned(4))) Database GLOBAL_DemoDatabase;
+__attribute__((section(".data.demodb"), aligned(4))) Database g_DemoDatabase;
 
 static bool findIndex(Database *db, u64 title_id, u16 *index)
 {

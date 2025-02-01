@@ -980,21 +980,21 @@ Result AM9_GetTWLArchiveResourceInfo(TWLArchiveResourceInfo *info)
 	return res;
 }
 
-	Result AM9_DSiWareExportValidateSectionMAC(u32 mac_size, u32 hash_size, u8 dsiware_export_section_index, void *mac, void *hash)
-	{
-		u32 *ipc_command = getThreadLocalStorage()->ipc_command;
+Result AM9_DSiWareExportValidateSectionMAC(u32 mac_size, u32 hash_size, u8 dsiware_export_section_index, void *mac, void *hash)
+{
+	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
-		ipc_command[0] = IPC_MakeHeader(ID_AM9_DSiWareExportValidateSectionMAC, 3, 4);
-		ipc_command[1] = mac_size;
-		ipc_command[2] = hash_size;
-		ipc_command[3] = (u32)dsiware_export_section_index;
-		ipc_command[4] = IPC_Desc_PXIBuffer(mac_size, 0, true);
-		ipc_command[5] = (u32)mac;
-		ipc_command[6] = IPC_Desc_PXIBuffer(hash_size, 1, true);
-		ipc_command[7] = (u32)hash;
+	ipc_command[0] = IPC_MakeHeader(ID_AM9_DSiWareExportValidateSectionMAC, 3, 4);
+	ipc_command[1] = mac_size;
+	ipc_command[2] = hash_size;
+	ipc_command[3] = (u32)dsiware_export_section_index;
+	ipc_command[4] = IPC_Desc_PXIBuffer(mac_size, 0, true);
+	ipc_command[5] = (u32)mac;
+	ipc_command[6] = IPC_Desc_PXIBuffer(hash_size, 1, true);
+	ipc_command[7] = (u32)hash;
 
-		BASIC_RET(am9_session)
-	}
+	BASIC_RET(am9_session)
+}
 
 Result AM9_CheckContentRight(u8 *has_right, u64 title_id, u16 content_index)
 {

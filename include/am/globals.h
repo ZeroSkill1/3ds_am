@@ -5,10 +5,10 @@
 #include <am/demodb.h>
 #include <am/pipe.h>
 
-extern RecursiveLock GLOBAL_TMDReader_Lock;
-extern Database GLOBAL_DemoDatabase;
-extern AM_Pipe GLOBAL_PipeManager;
-extern Handle GLOBAL_AddressArbiter;
-extern Handle GLOBAL_SystemUpdaterMutex;
+extern RecursiveLock g_TMDReader_Lock;
+extern Database g_DemoDatabase;
+extern AM_Pipe g_PipeManager;
+extern Handle g_AddressArbiter;
+extern Handle g_SystemUpdaterMutex;
 
 #endif

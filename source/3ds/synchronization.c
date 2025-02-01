@@ -1,20 +1,20 @@
 #include <3ds/synchronization.h>
 
-Handle GLOBAL_AddressArbiter;
+Handle g_AddressArbiter;
 
 inline Result syncInit()
 {
-	return svcCreateAddressArbiter(&GLOBAL_AddressArbiter);
+	return svcCreateAddressArbiter(&g_AddressArbiter);
 }
 
 inline void syncExit()
 {
-	svcCloseHandle(GLOBAL_AddressArbiter);
+	svcCloseHandle(g_AddressArbiter);
 }
 
 Result syncArbitrateAddress(s32 *addr, ArbitrationType type, s32 value)
 {
-	return svcArbitrateAddressNoTimeout(GLOBAL_AddressArbiter, (u32)addr, type, value);
+	return svcArbitrateAddressNoTimeout(g_AddressArbiter, (u32)addr, type, value);
 }
 
 void LightLock_Init(LightLock *lock)

@@ -52,7 +52,7 @@ __attribute__((section(".data.notif_id")))
 u32 notification_id = 0;
 
 __attribute__((section(".data.sys_update_mutex")))
-Handle GLOBAL_SystemUpdaterMutex;
+Handle g_SystemUpdaterMutex;
 
 // thread stacks for non-pipe threads (5), and one pipe thread (1)
 __attribute__((section(".data.stacks"),aligned(8)))
@@ -150,7 +150,7 @@ void pipe_tmain()
 	DEBUG_PRINT("[pipe thread] hello, pipe thread has started\n");
 	DEBUG_PRINT("[pipe thread] signaling event\n");
 
-	LightEvent_Signal(&GLOBAL_PipeManager.event);
+	LightEvent_Signal(&g_PipeManager.event);
 
 	DEBUG_PRINT("[pipe thread] event signaled\n");
 
@@ -165,7 +165,7 @@ void pipe_tmain()
 	static_bufs[4] = IPC_Desc_StaticBuffer(0, 4);
 	static_bufs[5] = (u32)NULL;
 
-	Handle handles[2] = { GLOBAL_PipeManager.current_session, GLOBAL_PipeManager.thread_close_event };
+	Handle handles[2] = { g_PipeManager.current_session, g_PipeManager.thread_close_event };
 	Handle target = 0;
 
 	Result res;
@@ -211,14 +211,14 @@ void pipe_tmain()
 		target = handles[index];
 	}
 
-	Err_FailedThrow(svcCloseHandle(GLOBAL_PipeManager.current_session))
-	GLOBAL_PipeManager.current_session = 0;
+	Err_FailedThrow(svcCloseHandle(g_PipeManager.current_session))
+	g_PipeManager.current_session = 0;
 
-	if (GLOBAL_PipeManager.write)
+	if (g_PipeManager.write)
 	{
-		if (GLOBAL_PipeManager.data) free(GLOBAL_PipeManager.data);
-		GLOBAL_PipeManager.data = NULL;
-		GLOBAL_PipeManager.write = NULL;
+		if (g_PipeManager.data) free(g_PipeManager.data);
+		g_PipeManager.data = NULL;
+		g_PipeManager.write = NULL;
 	}
 
 	DEBUG_PRINT("[pipe thread] goodbye\n");
@@ -308,22 +308,22 @@ void AM_Main()
 		Err_FailedThrow(SRV_RegisterService(&handles[j], AM_ServiceNames[i].name, AM_ServiceNames[i].len, AM_MAX_SESSIONS_PER_SERVICE))
 
 	// handles[5] - pipe port server
-	Err_FailedThrow(svcCreatePort(&handles[5], &GLOBAL_PipeManager.port_client, NULL, 1))
+	Err_FailedThrow(svcCreatePort(&handles[5], &g_PipeManager.port_client, NULL, 1))
 
 	// locks pipe manager to one thread at a time
-	RecursiveLock_Init(&GLOBAL_PipeManager.lock);
+	RecursiveLock_Init(&g_PipeManager.lock);
 
 	// locks tmd reading for cia ipcs to one thread at a time
-	RecursiveLock_Init(&GLOBAL_TMDReader_Lock);
+	RecursiveLock_Init(&g_TMDReader_Lock);
 
 	// used to do ??? in home menu and nim(?)
-	Err_FailedThrow(svcCreateMutex(&GLOBAL_SystemUpdaterMutex, 0))
+	Err_FailedThrow(svcCreateMutex(&g_SystemUpdaterMutex, 0))
 
 	// used to tell pipe thread to exit when pausing or cancelling imports
-	Err_FailedThrow(svcCreateEvent(&GLOBAL_PipeManager.thread_close_event, RESET_ONESHOT))
+	Err_FailedThrow(svcCreateEvent(&g_PipeManager.thread_close_event, RESET_ONESHOT))
 
 	// initialize demo db
-	AM_DemoDatabase_Initialize(&GLOBAL_DemoDatabase);
+	AM_DemoDatabase_Initialize(&g_DemoDatabase);
 
 	while (true)
 	{
@@ -355,18 +355,18 @@ void AM_Main()
 		}
 		else if (PIPE_REPLY(index)) // pipe server session received request to open pipe session
 		{
-			Err_FailedThrow(svcAcceptSession(&GLOBAL_PipeManager.current_session, handles[5]))
+			Err_FailedThrow(svcAcceptSession(&g_PipeManager.current_session, handles[5]))
 
-			freeThread(&GLOBAL_PipeManager.thread);
+			freeThread(&g_PipeManager.thread);
 
-			Err_FailedThrow(startThread(&GLOBAL_PipeManager.thread, &pipe_tmain, NULL, AM_SessionThreadStacks[5] + 0x1000, 61, -2))
+			Err_FailedThrow(startThread(&g_PipeManager.thread, &pipe_tmain, NULL, AM_SessionThreadStacks[5] + 0x1000, 61, -2))
 		}
 		else // invalid index
 			Err_Throw(AM_INTERNAL_RANGE)
 	}
 
 	// save, commit and close demodb
-	AM_DemoDatabase_Close(&GLOBAL_DemoDatabase);
+	AM_DemoDatabase_Close(&g_DemoDatabase);
 
 	// wait and close thread handles
 	for (u8 i = 0; i < AM_MAX_TOTAL_SESSIONS + 1; i++)
@@ -384,7 +384,7 @@ void AM_Main()
 
 	// pipe stuff
 	Err_FailedThrow(svcCloseHandle(handles[5]));
-	Err_FailedThrow(svcCloseHandle(GLOBAL_PipeManager.thread_close_event))
+	Err_FailedThrow(svcCloseHandle(g_PipeManager.thread_close_event))
 
 	fsUserExit();
 	am9Exit();

@@ -1,7 +1,7 @@
 #include <am/cia.h>
 
 static TMDHeader __attribute__((section(".data.min_tmd"))) min_tmd;
-RecursiveLock GLOBAL_TMDReader_Lock;
+RecursiveLock g_TMDReader_Lock;
 
 static Result CIAReader_ReadEnabledIndices(CIAReader *rd, u16 amount, u16 *indices, u16 *read_indices)
 {
@@ -90,7 +90,7 @@ Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *si
 
 	// step 1: contents
 
-	RecursiveLock_Lock(&GLOBAL_TMDReader_Lock);
+	RecursiveLock_Lock(&g_TMDReader_Lock);
 
 	if (!skip_tmd_read && R_FAILED(res = CIAReader_ReadMinTMD(rd)))
 		return res;
@@ -129,7 +129,7 @@ Result CIAReader_CalculateTitleSize(CIAReader *rd, MediaType media_type, u64 *si
 	else
 		save_size = ALIGN(min_tmd.SaveInfo.Size.CTRSaveSize, align);
 
-	RecursiveLock_Unlock(&GLOBAL_TMDReader_Lock);
+	RecursiveLock_Unlock(&g_TMDReader_Lock);
 
 	if (save_size) // extra align block if save data is there
 		save_size += align;
@@ -153,7 +153,7 @@ Result CIAReader_GetTitleInfo(CIAReader *rd, MediaType media_type, TitleInfo *in
 {
 	_memset32_aligned(info, 0x00, sizeof(TitleInfo));
 
-	RecursiveLock_Lock(&GLOBAL_TMDReader_Lock);
+	RecursiveLock_Lock(&g_TMDReader_Lock);
 	Result res = CIAReader_ReadMinTMD(rd);
 
 	if (R_SUCCEEDED(res))
@@ -165,7 +165,7 @@ Result CIAReader_GetTitleInfo(CIAReader *rd, MediaType media_type, TitleInfo *in
 		res = CIAReader_CalculateTitleSize(rd, media_type, &info->size, NULL, NULL, true);
 	}
 	
-	RecursiveLock_Unlock(&GLOBAL_TMDReader_Lock);
+	RecursiveLock_Unlock(&g_TMDReader_Lock);
 	return res;
 }
 

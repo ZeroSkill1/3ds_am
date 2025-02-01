@@ -983,7 +983,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 			u64 *title_ids = (u64 *)ipc_command[3];
 			DemoLaunchInfo *infos = (DemoLaunchInfo *)ipc_command[5];
 
-			AM_DemoDatabase_GetLaunchInfos(&GLOBAL_DemoDatabase, title_ids, count, infos);
+			AM_DemoDatabase_GetLaunchInfos(&g_DemoDatabase, title_ids, count, infos);
 
 			ipc_command[0] = IPC_MakeHeader(0x0027, 1, 4);
 			ipc_command[1] = 0; // we don't really have possible errors unless nand is fucked
@@ -1218,7 +1218,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			Handle import = 0;
 
-			Result res = AM_Pipe_CreateCIAImportHandle(&GLOBAL_PipeManager, media_type, TitleDB, false, false, &import);
+			Result res = AM_Pipe_CreateCIAImportHandle(&g_PipeManager, media_type, TitleDB, false, false, &import);
 			assertNotAmOrFsWithMedia(res, media_type);
 
 			ipc_command[0] = IPC_MakeHeader(0x0402, 1, 2);
@@ -1233,7 +1233,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			Handle import = 0;
 
-			Result res = AM_Pipe_CreateCIAImportHandle(&GLOBAL_PipeManager, MediaType_NAND, TempDB, false, false, &import);
+			Result res = AM_Pipe_CreateCIAImportHandle(&g_PipeManager, MediaType_NAND, TempDB, false, false, &import);
 			assertNotAm(res);
 
 			ipc_command[0] = IPC_MakeHeader(0x0403, 1, 2);
@@ -1252,12 +1252,12 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			Result res = 0;
 
-			if (!GLOBAL_PipeManager.write)
+			if (!g_PipeManager.write)
 				res = AM_INVALID_CONTENT_IMPORT_STATE;
 
 			if (R_SUCCEEDED(res))
 			{
-				CIAInstallData *c = (CIAInstallData *)GLOBAL_PipeManager.data;
+				CIAInstallData *c = (CIAInstallData *)g_PipeManager.data;
 
 				if (c->buf) { free(c->buf); c->buf = NULL; }
 				if (c->importing_tik)     AM9_InstallTicketCancel();
@@ -1265,7 +1265,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 				if (c->importing_content) AM9_InstallContentCancel();
 				if (c->importing_title)   AM9_InstallTitleCancel();
 
-				AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+				AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 			}
 
 			ipc_command[0] = IPC_MakeHeader(0x0404, 1, 0);
@@ -1282,14 +1282,14 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			Result res = 0;
 
-			if (!GLOBAL_PipeManager.write)
+			if (!g_PipeManager.write)
 				res = AM_INVALID_CONTENT_IMPORT_STATE;
 
 			if (R_SUCCEEDED(res))
 			{
-				AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+				AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 
-				CIAInstallData *c = (CIAInstallData *)GLOBAL_PipeManager.data;
+				CIAInstallData *c = (CIAInstallData *)g_PipeManager.data;
 
 				res = AM9_InstallTitleFinish();
 				assertNotAmOrFsWithMedia(res, c->media);
@@ -1313,9 +1313,9 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			Handle import = ipc_command[2];
 
-			AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+			AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 
-			MediaType media_type = ((CIAInstallData *)GLOBAL_PipeManager.data)->media;
+			MediaType media_type = ((CIAInstallData *)g_PipeManager.data)->media;
 
 			Result res = AM9_InstallTitleFinish();
 			assertNotAmOrFsWithMedia(res, media_type);
@@ -1624,7 +1624,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 			ipc_command[0] = IPC_MakeHeader(0x0412, 1, 2);
 			ipc_command[1] = 0;
 			ipc_command[2] = IPC_Desc_SharedHandles(1);
-			ipc_command[3] = GLOBAL_SystemUpdaterMutex;
+			ipc_command[3] = g_SystemUpdaterMutex;
 		}
 		break;
 	case 0x0413: // get cia meta size
@@ -1694,7 +1694,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			u64 title_id = *((u64 *)(&ipc_command[1]));
 
-			bool has_right = AM_DemoDatabase_HasDemoLaunchRight(&GLOBAL_DemoDatabase, title_id);
+			bool has_right = AM_DemoDatabase_HasDemoLaunchRight(&g_DemoDatabase, title_id);
 
 			ipc_command[0] = IPC_MakeHeader(0x0415, 2, 0);
 			ipc_command[1] = 0;
@@ -1740,7 +1740,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			Handle import = 0;
 
-			Result res = AM_Pipe_CreateCIAImportHandle(&GLOBAL_PipeManager, media_type, TitleDB, true, false, &import);
+			Result res = AM_Pipe_CreateCIAImportHandle(&g_PipeManager, media_type, TitleDB, true, false, &import);
 			assertNotAmOrFsWithMedia(res, media_type);
 
 			ipc_command[0] = IPC_MakeHeader(0x0418, 1, 2);
@@ -1755,7 +1755,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			Handle import = 0;
 
-			Result res = AM_Pipe_CreateCIAImportHandle(&GLOBAL_PipeManager, MediaType_NAND, TitleDB, false, true, &import);
+			Result res = AM_Pipe_CreateCIAImportHandle(&g_PipeManager, MediaType_NAND, TitleDB, false, true, &import);
 			assertNotAm(res);
 
 			ipc_command[0] = IPC_MakeHeader(0x0419, 1, 2);
@@ -2202,7 +2202,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 
 			if (R_SUCCEEDED(res))
 			{
-				res = AM_Pipe_CreateTicketImportHandle(&GLOBAL_PipeManager, &import);
+				res = AM_Pipe_CreateTicketImportHandle(&g_PipeManager, &import);
 				assertNotAm(res);
 			}
 
@@ -2223,7 +2223,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 			Result res = AM9_InstallTicketCancel();
 			assertNotAm(res);
 
-			AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+			AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 
 			ipc_command[0] = IPC_MakeHeader(0x0802, 1, 0);
 			ipc_command[1] = res;
@@ -2240,7 +2240,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 			Result res = AM9_InstallTicketFinish();
 			assertNotAm(res);
 			
-			AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+			AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 
 			ipc_command[0] = IPC_MakeHeader(0x0803, 1, 0);
 			ipc_command[1] = res;
@@ -2284,7 +2284,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 				res = AM_INVALID_CONTENT_IMPORT_STATE;
 			else
 			{
-				AM_Pipe_EnsureThreadExit(&GLOBAL_PipeManager);
+				AM_Pipe_EnsureThreadExit(&g_PipeManager);
 
 				session->importing_title = false;
 
@@ -2333,7 +2333,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 				res = AM_INVALID_CONTENT_IMPORT_STATE;
 			else
 			{
-				AM_Pipe_EnsureThreadExit(&GLOBAL_PipeManager);
+				AM_Pipe_EnsureThreadExit(&g_PipeManager);
 
 				session->importing_title = false;
 
@@ -2406,7 +2406,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 
 				if (R_SUCCEEDED(res))
 				{
-					res = AM_Pipe_CreateTMDImportHandle(&GLOBAL_PipeManager, &import);
+					res = AM_Pipe_CreateTMDImportHandle(&g_PipeManager, &import);
 					assertNotAmOrFsWithMedia(res, session->media);
 				}
 			}
@@ -2434,7 +2434,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 				res = AM9_InstallTMDCancel();
 				assertNotAmOrFsWithMedia(res, session->media);
 
-				AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+				AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 			}
 
 			ipc_command[0] = IPC_MakeHeader(0x080B, 1, 0);
@@ -2460,7 +2460,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 				res = AM9_InstallTMDFinish(unk);
 				assertNotAmOrFsWithMedia(res, session->media);
 
-				AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+				AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 			}
 
 			ipc_command[0] = IPC_MakeHeader(0x080C, 1, 0);
@@ -2513,7 +2513,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 
 				if (R_SUCCEEDED(res))
 				{
-					res = AM_Pipe_CreateContentImportHandle(&GLOBAL_PipeManager, &import);
+					res = AM_Pipe_CreateContentImportHandle(&g_PipeManager, &import);
 					assertNotAmOrFsWithMedia(res, session->media);
 				}
 			}
@@ -2542,7 +2542,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 				assertNotAmOrFsWithMedia(res, session->media);
 			}
 
-			AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+			AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 
 			ipc_command[0] = IPC_MakeHeader(0x080F, 1, 0);
 			ipc_command[1] = res;
@@ -2568,7 +2568,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 
 				if (R_SUCCEEDED(res))
 				{
-					res = AM_Pipe_CreateContentImportHandle(&GLOBAL_PipeManager, &import);
+					res = AM_Pipe_CreateContentImportHandle(&g_PipeManager, &import);
 					assertNotAmOrFsWithMedia(res, session->media);
 				}
 			}
@@ -2598,7 +2598,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 				res = AM9_InstallContentCancel();
 				assertNotAmOrFsWithMedia(res, session->media);
 
-				AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+				AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 			}
 
 			ipc_command[0] = IPC_MakeHeader(0x0811, 1, 0);
@@ -2622,7 +2622,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 				res = AM9_InstallContentFinish();
 				assertNotAmOrFsWithMedia(res, session->media);
 
-				AM_Pipe_CloseImportHandle(&GLOBAL_PipeManager, import);
+				AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 			}
 
 			ipc_command[0] = IPC_MakeHeader(0x0812, 1, 0);
@@ -3170,7 +3170,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 		{
 			CHECK_HEADER(0x0827, 0, 0)
 
-			AM_DemoDatabase_InitializeHeader(&GLOBAL_DemoDatabase);
+			AM_DemoDatabase_InitializeHeader(&g_DemoDatabase);
 
 			ipc_command[0] = IPC_MakeHeader(0x0827, 0, 0);
 			ipc_command[1] = 0;

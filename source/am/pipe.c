@@ -2,7 +2,7 @@
 
 static u8 __attribute__((section(".data.cia_cindex"))) cia_content_index[0x2000];
 
-AM_Pipe GLOBAL_PipeManager;
+AM_Pipe g_PipeManager;
 
 static Result AM_Pipe_CIA_Write(void *data, u64 offset, u32 size, u32 flags, void *indata, u32 *written)
 {
@@ -800,7 +800,7 @@ void AM_Pipe_EnsureThreadExit(AM_Pipe *pipe)
 {
 	RecursiveLock_Lock(&pipe->lock);
 
-	if (GLOBAL_PipeManager.init) // just ensuring we don't have a pipe thread running
+	if (g_PipeManager.init) // just ensuring we don't have a pipe thread running
 	{
 		Err_FailedThrow(svcSignalEvent(pipe->thread_close_event));
 		svcWaitSynchronization(pipe->thread, -1);
@@ -918,7 +918,7 @@ void AM_Pipe_HandleIPC()
 
 			void *buf = (void *)ipc_command[6];
 
-			Result res = GLOBAL_PipeManager.write(GLOBAL_PipeManager.data, offset, size, flags, buf, &written);
+			Result res = g_PipeManager.write(g_PipeManager.data, offset, size, flags, buf, &written);
 
 			ipc_command[0] = IPC_MakeHeader(0x0803, 2, 2);
 			ipc_command[1] = res;
