@@ -82,7 +82,7 @@ static Result findFirmTitleIdToInstall(u64 *title_ids, u32 count, u64 *out_tid)
 	u64 hver_tid_installed = 0;
 
 	Result res = findInstalledFirmTitleIdNewerThanRunning(&hver_tid_installed);
-	
+
 	if (R_FAILED(res))
 	{
 		if (res != AM_NOT_FOUND)
@@ -168,7 +168,7 @@ static Result AMNet_CalculateContextRequiredSize(MediaType media_type, u64 title
 
 	// ????????? (this deserves more ???'s)
 
-	_size += 
+	_size +=
 		ALIGN((indices_count * 0x400) + 0x200, align) +
 		ALIGN((((0x10 * infos[0].index) + 0x10) + ((4 * infos[0].index) + 4) + 0x20 + (4 * num_infos)), align);
 
@@ -238,7 +238,7 @@ static void AM_HandleIPC_Range0x1_0x2D()
 
 			CHECK_WRONGARG
 			(
-				!IPC_VerifyBuffer(ipc_command[3], IPC_BUFFER_R) || 
+				!IPC_VerifyBuffer(ipc_command[3], IPC_BUFFER_R) ||
 				IPC_GetBufferSize(ipc_command[3]) != tobjcount ||
 				!IPC_VerifyBuffer(ipc_command[5], IPC_BUFFER_W) ||
 				IPC_GetBufferSize(ipc_command[5]) != iobjcount
@@ -374,15 +374,16 @@ static void AM_HandleIPC_Range0x1_0x2D()
 		{
 			CHECK_HEADER(0x000A, 0, 0)
 
-			u64 id = 0;
+			s32 internal_result = 0;
+			u32 id = 0;
 
-			Result res = AM9_GetDeviceID(&id);
+			Result res = AM9_GetDeviceID(&internal_result, &id);
 			assertNotAm(res);
 
 			ipc_command[0] = IPC_MakeHeader(0x000A, 3, 0);
 			ipc_command[1] = res;
-			ipc_command[2] = LODWORD(id);
-			ipc_command[3] = HIDWORD(id);
+			ipc_command[2] = internal_result;
+			ipc_command[3] = id;
 		}
 		break;
 	case 0x000B: // get import title context count
@@ -1208,7 +1209,7 @@ static void AM_HandleIPC_Range0x401_0x419(AM_SessionData *session)
 
 			ipc_command[0] = IPC_MakeHeader(0x0401, 1, 0);
 			ipc_command[1] = res;
-		}	
+		}
 		break;
 	case 0x0402: // begin user CIA install
 		{
@@ -2239,7 +2240,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 
 			Result res = AM9_InstallTicketFinish();
 			assertNotAm(res);
-			
+
 			AM_Pipe_CloseImportHandle(&g_PipeManager, import);
 
 			ipc_command[0] = IPC_MakeHeader(0x0803, 1, 0);
@@ -2946,7 +2947,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 			u32 amount = ipc_command[1];
 			u32 tobjcount = amount * sizeof(u64);
 			u64 title_id = *((u64 *)(&ipc_command[2]));
-			bool unk = (bool)ipc_command[4];
+			bool verify_tickets = (bool)ipc_command[4];
 
 			CHECK_WRONGARG
 			(
@@ -2958,7 +2959,7 @@ static void AM_HandleIPC_Range0x801_0x829(AM_SessionData *session)
 
 			u32 count = 0;
 
-			Result res = AM9_GetTicketIDList(&count, amount, title_id, unk, ticket_ids);
+			Result res = AM9_GetTicketIDList(&count, amount, title_id, verify_tickets, ticket_ids);
 			assertNotAm(res);
 
 			ipc_command[0] = IPC_MakeHeader(0x081E, 2, 2);

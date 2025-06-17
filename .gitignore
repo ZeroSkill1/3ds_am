@@ -24,3 +24,4 @@ testcia/*
 *.cia
 *.sh
 *.d
+compile_commands.json

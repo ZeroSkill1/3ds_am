@@ -344,7 +344,7 @@ Result AM9_InstallContentPause()
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
 	ipc_command[0] = IPC_MakeHeader(ID_AM9_InstallContentPause, 0, 0);
-	
+
 	BASIC_RET(am9_session)
 }
 
@@ -353,7 +353,7 @@ Result AM9_InstallContentCancel()
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
 	ipc_command[0] = IPC_MakeHeader(ID_AM9_InstallContentCancel, 0, 0);
-	
+
 	BASIC_RET(am9_session)
 }
 
@@ -363,7 +363,7 @@ Result AM9_InstallContentResume(u16 content_index, u64 *resume_offset)
 
 	ipc_command[0] = IPC_MakeHeader(ID_AM9_InstallContentResume, 1, 0);
 	ipc_command[1] = (u32)content_index;
-	
+
 	CHECK_RET(am9_session)
 
 	if (resume_offset) *resume_offset = *((u64 *)(&ipc_command[2]));
@@ -376,7 +376,7 @@ Result AM9_InstallContentFinish()
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
 	ipc_command[0] = IPC_MakeHeader(ID_AM9_InstallContentFinish, 0, 0);
-	
+
 	BASIC_RET(am9_session)
 }
 
@@ -622,7 +622,7 @@ Result AM9_GetDeviceCertificate(u32 *retval, u32 out_data_size, void *out_data)
 	return res;
 }
 
-Result AM9_GetDeviceID(u64 *id)
+Result AM9_GetDeviceID(s32 *out_internal_result, u32 *id)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
@@ -630,7 +630,8 @@ Result AM9_GetDeviceID(u64 *id)
 
 	CHECK_RET(am9_session)
 
-	*id = *((u64 *)&ipc_command[2]);
+	*out_internal_result = ipc_command[2];
+	*id = ipc_command[3];
 
 	return res;
 }
@@ -820,7 +821,7 @@ Result AM9_GetTicketIDCount(u32 *count, u64 title_id)
 	return res;
 }
 
-Result AM9_GetTicketIDList(u32 *count, u32 amount, u64 title_id, bool unknown, u64 *ticket_ids)
+Result AM9_GetTicketIDList(u32 *count, u32 amount, u64 title_id, bool verifyTickets, u64 *ticket_ids)
 {
 	u32 *ipc_command = getThreadLocalStorage()->ipc_command;
 
@@ -828,7 +829,7 @@ Result AM9_GetTicketIDList(u32 *count, u32 amount, u64 title_id, bool unknown, u
 	ipc_command[1] = amount;
 	ipc_command[2] = LODWORD(title_id);
 	ipc_command[3] = HIDWORD(title_id);
-	ipc_command[4] = (u32)unknown;
+	ipc_command[4] = (u32)verifyTickets;
 	ipc_command[5] = IPC_Desc_PXIBuffer(amount * sizeof(u64), 0, false);
 	ipc_command[6] = (u32)ticket_ids;
 
