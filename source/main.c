@@ -231,7 +231,7 @@ static inline void initializeBSS()
 	extern void *__bss_start__;
 	extern void *__bss_end__;
 
-	_memset32_aligned(__bss_start__, 0, (size_t)__bss_end__ - (size_t)__bss_end__);
+	_memset32_aligned(__bss_start__, 0, (size_t)__bss_end__ - (size_t)__bss_start__);
 }
 
 void initializeHeap(void)
